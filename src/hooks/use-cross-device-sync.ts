@@ -68,11 +68,34 @@ export function useCrossDeviceSync() {
     }
   }, []);
 
-  // Fetch updates from the shared server
+  // Fetch updates from the shared server with adaptive polling
+  const isServerAvailableRef = useRef<boolean>(true);
+  const failureCountRef = useRef<number>(0);
+
   const pullFromServer = useCallback(async () => {
+    // If hidden, skip polling to conserve client resources
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      return;
+    }
+
     try {
-      const res = await fetch('/api/sync', { cache: 'no-store' });
-      if (!res.ok) return;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch('/api/sync', {
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        isServerAvailableRef.current = false;
+        failureCountRef.current = Math.min(failureCountRef.current + 1, 10);
+        return;
+      }
+
+      isServerAvailableRef.current = true;
+      failureCountRef.current = 0;
       const data: SyncData = await res.json();
 
       if (data && typeof data.version === 'number') {
@@ -117,39 +140,67 @@ export function useCrossDeviceSync() {
       }
     } catch {
       // Backend offline or unreachable, local fallback remains active
+      isServerAvailableRef.current = false;
+      failureCountRef.current = Math.min(failureCountRef.current + 1, 10);
     }
   }, []);
 
-  // SSE Real-Time EventBus Listener + Polling Fallback
+  // Adaptive Real-Time Sync: polite polling + optional SSE if backend available
   useEffect(() => {
     pullFromServer();
 
     let eventSource: EventSource | null = null;
-    if (typeof EventSource !== 'undefined') {
-      try {
-        eventSource = new EventSource('/api/events');
-        eventSource.onmessage = (e) => {
-          try {
-            const parsed = JSON.parse(e.data);
-            if (parsed.type && parsed.type !== 'PING') {
-              pullFromServer();
+    let sseTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    // Only attempt EventSource after initial pull indicates server availability
+    sseTimeout = setTimeout(() => {
+      if (isServerAvailableRef.current && typeof EventSource !== 'undefined') {
+        try {
+          eventSource = new EventSource('/api/events');
+          eventSource.onmessage = (e) => {
+            try {
+              const parsed = JSON.parse(e.data);
+              if (parsed.type && parsed.type !== 'PING') {
+                pullFromServer();
+              }
+            } catch {}
+          };
+          eventSource.onerror = () => {
+            // Close SSE on error to avoid repeated reconnect thrashing
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
             }
-          } catch {}
-        };
-      } catch {}
-    }
+          };
+        } catch {}
+      }
+    }, 1500);
 
-    const interval = setInterval(() => {
+    // Adaptive interval: 10s if server reachable, 30s backoff if server is down
+    let intervalTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleNextPoll = () => {
+      const delay = failureCountRef.current > 0 ? 30000 : 10000;
+      intervalTimer = setTimeout(async () => {
+        await pullFromServer();
+        scheduleNextPoll();
+      }, delay);
+    };
+
+    scheduleNextPoll();
+
+    const handleFocus = () => {
+      failureCountRef.current = 0;
       pullFromServer();
-    }, 3000);
+    };
 
-    const handleFocus = () => pullFromServer();
     window.addEventListener('focus', handleFocus);
     window.addEventListener('online', handleFocus);
 
     return () => {
+      if (sseTimeout) clearTimeout(sseTimeout);
       if (eventSource) eventSource.close();
-      clearInterval(interval);
+      if (intervalTimer) clearTimeout(intervalTimer);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleFocus);
     };
@@ -167,14 +218,30 @@ export function useCrossDeviceSync() {
       return next;
     });
 
-    // Notify server
+    // Instant same-browser cross-tab broadcast
+    channelRef.current?.postMessage({
+      type: 'SYNC_UPDATE',
+      requests: [newReq],
+      resolvedIds: [],
+      helpingIds: [],
+    });
+
+    // Notify server asynchronously without blocking UI
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
     fetch('/api/sync/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newReq),
+      signal: controller.signal,
     })
-      .then(() => pullFromServer())
-      .catch(() => {});
+      .then(() => {
+        clearTimeout(timeout);
+        pullFromServer();
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+      });
   }, [pullFromServer]);
 
   const resolveRequest = useCallback((id: string) => {

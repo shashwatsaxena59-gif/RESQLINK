@@ -351,9 +351,13 @@ function App() {
       distanceMiles: 0.1,
       createdAt: new Date(req.createdAt).getTime(),
       coords,
+      latitude: req.latitude ?? coords.y,
+      longitude: req.longitude ?? coords.x,
+      locationDescription: req.locationDescription || locationLabel,
       peopleCount: req.numberOfPeople || 1,
       isUserCreated: true,
       region: (region as RegionKey) || 'ncr',
+      syncStatus: isOnline ? 'synced' : 'pending',
     };
 
     addCustomRequest(newAidRequest);
@@ -521,6 +525,8 @@ function App() {
             onRegionChange={handleRegionChange}
             theme={theme}
             userRole={userRole}
+            navDestination={navDest}
+            onClearNavDestination={() => setNavDest(null)}
             onNavigate={handleNavigate}
             onOpenDetailsModal={(id) => {
               setDetailsRequestId(id);
@@ -546,6 +552,7 @@ function App() {
               setRequestDetailsOpen(true);
             }}
             onNavigateToMap={() => setCurrentRoute('map')}
+            onNavigate={handleNavigate}
             onOpenVolunteerReg={() => setVolunteerRegOpen(true)}
           />
         )}
@@ -592,6 +599,18 @@ function App() {
         onViewDetails={(id) => {
           setDetailsRequestId(id);
           setRequestDetailsOpen(true);
+        }}
+        onTrackOnMap={(req) => {
+          const lat = req.latitude ?? (region === 'badrinath' ? 30.556 : 28.6139);
+          const lng = req.longitude ?? (region === 'badrinath' ? 79.564 : 77.209);
+          handleNavigate({
+            id: req.id,
+            name: `${req.category.toUpperCase()} SOS: ${req.description.slice(0, 36)}...`,
+            address: req.locationDescription || locationLabel,
+            coords: [lat, lng],
+            phone: req.contactPhone,
+            type: req.category,
+          });
         }}
       />
 

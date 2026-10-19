@@ -37,6 +37,8 @@ interface EmergencyMapPageProps {
   onRegionChange: (region: MapRegion) => void;
   theme?: 'dark' | 'light';
   userRole?: string;
+  navDestination?: NavDestination | null;
+  onClearNavDestination?: () => void;
   onNavigate?: (dest: NavDestination) => void;
   onOpenDetailsModal?: (id: string) => void;
   onHelpRequest?: (id: string) => void;
@@ -56,6 +58,8 @@ export function EmergencyMapPage({
   onRegionChange,
   theme = 'dark',
   userRole = 'citizen',
+  navDestination = null,
+  onClearNavDestination,
   onNavigate,
   onOpenDetailsModal,
   onHelpRequest,
@@ -149,6 +153,23 @@ export function EmergencyMapPage({
       onNavigate(dest);
     }
   }, [userCoords, routingMode, handleUseMyLocation, onNavigate]);
+
+  // ── Synchronize with incoming navDestination prop (e.g. from Volunteer Portal) ──
+  React.useEffect(() => {
+    if (navDestination) {
+      setActiveNavDest(navDestination);
+      setViewMode('map');
+      if (userCoords) {
+        setIsRoutingLoading(true);
+        fetchRoute(userCoords, navDestination.coords, routingMode, navDestination.address)
+          .then((result) => setRouteResult(result))
+          .catch(() => {})
+          .finally(() => setIsRoutingLoading(false));
+      } else {
+        handleUseMyLocation();
+      }
+    }
+  }, [navDestination, userCoords, routingMode, handleUseMyLocation]);
 
   // ── Recalculate route when mode changes ──────────────────────────────────
   const handleToggleRoutingMode = useCallback(async (mode: 'driving' | 'walking') => {
@@ -650,6 +671,7 @@ export function EmergencyMapPage({
                     onClick={() => {
                       setActiveNavDest(null);
                       setRouteResult(null);
+                      onClearNavDestination?.();
                     }}
                     className="text-muted-foreground hover:text-foreground"
                   >

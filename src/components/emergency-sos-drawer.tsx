@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   X,
   Plus,
+  Navigation,
 } from 'lucide-react';
 import {
   Sheet,
@@ -53,6 +54,7 @@ export interface EmergencySosDrawerProps {
   locationLabel?: string;
   onSuccess: (request: EmergencyRequest) => void;
   onViewDetails?: (requestId: string) => void;
+  onTrackOnMap?: (request: EmergencyRequest) => void;
 }
 
 const CATEGORIES: Array<{
@@ -115,6 +117,7 @@ export function EmergencySosDrawer({
   locationLabel = 'Delhi NCR',
   onSuccess,
   onViewDetails,
+  onTrackOnMap,
 }: EmergencySosDrawerProps) {
   useModalBack(open, () => onOpenChange(false));
 
@@ -168,14 +171,14 @@ export function EmergencySosDrawer({
       setLatitude(null);
       setLongitude(null);
       setLocationAccuracy(null);
-      setLocationDescription('');
+      setLocationDescription(locationLabel || '');
       setGpsLoading(false);
       setGpsError(null);
       setErrors({});
       setIsSubmitting(false);
       setCreatedRequest(null);
     }
-  }, [open]);
+  }, [open, locationLabel]);
 
   // If user picks "medical" category, automatically reveal medical urgency section
   useEffect(() => {
@@ -256,21 +259,12 @@ export function EmergencySosDrawer({
 
     if (!description.trim()) {
       newErrors.description = 'Please describe the emergency situation so responders can prepare.';
-    } else if (description.trim().length < 6) {
-      newErrors.description = 'Please provide a more detailed description (at least 6 characters).';
+    } else if (description.trim().length < 3) {
+      newErrors.description = 'Please provide a more detailed description (at least 3 characters).';
     }
 
     if (numberOfPeople < 1) {
       newErrors.numberOfPeople = 'Number of people must be at least 1.';
-    }
-
-    // Location validation: MUST have either valid GPS OR manual location description
-    const hasGps = latitude !== null && longitude !== null;
-    const hasManual = locationDescription.trim().length >= 4;
-
-    if (!hasGps && !hasManual) {
-      newErrors.location =
-        'Please either detect GPS or provide a specific landmark / street address so responders can find you.';
     }
 
     setErrors(newErrors);
@@ -287,6 +281,11 @@ export function EmergencySosDrawer({
       // 1. Generate unique idempotency key
       const idempotencyKey = `sos-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+      // Resolve coordinates and location description reliably
+      const resolvedLat = latitude !== null ? latitude : region === 'badrinath' ? 30.556 : 28.6139;
+      const resolvedLng = longitude !== null ? longitude : region === 'badrinath' ? 79.564 : 77.209;
+      const resolvedLocation = locationDescription.trim() || locationLabel || 'Reported Disaster Zone';
+
       // 2. Prepare domain model input
       const requestInput = {
         category,
@@ -298,10 +297,10 @@ export function EmergencySosDrawer({
           : null,
         numberOfPeople: Math.floor(numberOfPeople),
         requiredResources: selectedResources.length > 0 ? selectedResources : ['General Assistance'],
-        latitude,
-        longitude,
-        locationAccuracy,
-        locationDescription: locationDescription.trim() || locationLabel,
+        latitude: resolvedLat,
+        longitude: resolvedLng,
+        locationAccuracy: locationAccuracy || (latitude !== null ? 15 : null),
+        locationDescription: resolvedLocation,
         contactName: contactName.trim() || undefined,
         contactPhone: contactPhone.trim() || undefined,
         idempotencyKey,
@@ -312,21 +311,69 @@ export function EmergencySosDrawer({
       const newRequest = createEmergencyRequest(requestInput);
 
       // 4. Save to IndexedDB local repository FIRST (offline guarantee)
-      await emergencyRequestRepo.save(newRequest);
+      try {
+        await emergencyRequestRepo.save(newRequest);
+      } catch (err) {
+        console.warn('IDB save warning:', err);
+      }
 
       // 5. Enqueue into background sync manager outbox
-      await syncQueueManager.enqueue(
-        'emergency_request',
-        newRequest.id,
-        'create',
-        newRequest as unknown as Record<string, unknown>,
-        newRequest.idempotencyKey
-      );
+      try {
+        await syncQueueManager.enqueue(
+          'emergency_request',
+          newRequest.id,
+          'create',
+          newRequest as unknown as Record<string, unknown>,
+          newRequest.idempotencyKey
+        );
+      } catch (err) {
+        console.warn('SyncQueue enqueue notice:', err);
+      }
 
-      // 6. Notify parent component to update live feed / map
+      // 6. Direct HTTP POST to server sync endpoint if online
+      if (typeof window !== 'undefined') {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        fetch('/api/sync/request', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Idempotency-Key': idempotencyKey,
+          },
+          body: JSON.stringify({
+            id: newRequest.id,
+            category: newRequest.category,
+            priority:
+              newRequest.severity === 'critical'
+                ? 'critical'
+                : newRequest.severity === 'urgent'
+                ? 'urgent'
+                : 'moderate',
+            title: `${newRequest.category.toUpperCase()} SOS: ${newRequest.description.slice(0, 42)}...`,
+            details: newRequest.description,
+            items: newRequest.requiredResources,
+            contactName: newRequest.contactName || 'Emergency Requester',
+            contactPhone: newRequest.contactPhone || '',
+            distanceMiles: 0.1,
+            createdAt: Date.now(),
+            latitude: resolvedLat,
+            longitude: resolvedLng,
+            coords: { y: resolvedLat, x: resolvedLng },
+            peopleCount: newRequest.numberOfPeople,
+            locationDescription: resolvedLocation,
+            isUserCreated: true,
+            region,
+          }),
+          signal: controller.signal,
+        })
+          .catch(() => {})
+          .finally(() => clearTimeout(timeout));
+      }
+
+      // 7. Notify parent component to update live feed / map immediately
       onSuccess(newRequest);
 
-      // 7. Transition to success screen
+      // 8. Transition to success screen
       setCreatedRequest(newRequest);
     } catch (err: unknown) {
       console.error('Failed to submit SOS request:', err);
@@ -444,6 +491,19 @@ export function EmergencySosDrawer({
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              {onTrackOnMap && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    onTrackOnMap(createdRequest);
+                    onOpenChange(false);
+                  }}
+                  className="flex-1 bg-primary text-primary-foreground font-bold hover:bg-primary/90"
+                >
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Track on Live Map
+                </Button>
+              )}
               {onViewDetails && (
                 <Button
                   type="button"
@@ -451,17 +511,18 @@ export function EmergencySosDrawer({
                     onViewDetails(createdRequest.id);
                     onOpenChange(false);
                   }}
-                  className="flex-1 bg-lime hover:bg-lime/90 text-charcoal-950 font-bold"
+                  variant="outline"
+                  className="flex-1 border-border text-foreground hover:bg-secondary font-semibold"
                 >
                   <Eye className="h-4 w-4 mr-2" />
-                  View Request Details
+                  View Details
                 </Button>
               )}
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="flex-1 border-border text-foreground hover:bg-secondary"
+                className="flex-1 text-muted-foreground hover:text-foreground"
               >
                 Done
               </Button>

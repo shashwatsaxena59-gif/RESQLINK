@@ -31,7 +31,9 @@ import {
   Info,
   SlidersHorizontal,
   CheckCheck,
+  Navigation,
 } from 'lucide-react';
+import type { NavDestination } from '@/hooks/use-navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -201,6 +203,7 @@ export interface VolunteerPortalViewProps {
   onResolveRequest: (id: string) => void;
   onOpenDetailsModal: (id: string) => void;
   onNavigateToMap: () => void;
+  onNavigate?: (dest: NavDestination) => void;
   onOpenVolunteerReg: () => void;
 }
 
@@ -213,6 +216,7 @@ export function VolunteerPortalView({
   onResolveRequest,
   onOpenDetailsModal,
   onNavigateToMap,
+  onNavigate,
   onOpenVolunteerReg,
 }: VolunteerPortalViewProps) {
   // ── Profile State ──────────────────────────────────────────────────────────
@@ -287,6 +291,9 @@ export function VolunteerPortalView({
   // ── Resolve Request Lat/Lng Helper ─────────────────────────────────────────
   const getRequestCoords = useCallback(
     (req: AidRequest): [number, number] | null => {
+      if (req.latitude && req.longitude) {
+        return [req.latitude, req.longitude];
+      }
       if (req.coords && (req.coords.x !== 0 || req.coords.y !== 0)) {
         const { x, y } = req.coords;
         if (y >= 20 && y <= 40 && x >= 65 && x <= 95) {
@@ -297,9 +304,31 @@ export function VolunteerPortalView({
         const lng = center[1] + (x - 50) * 0.0035;
         return [lat, lng];
       }
-      return null;
+      const center = REGION_CENTERS[region] || REGION_CENTERS.ncr;
+      return center;
     },
     [region]
+  );
+
+  // ── Directions Navigation Handler ──────────────────────────────────────────
+  const handleDirections = useCallback(
+    (req: AidRequest) => {
+      const coords = getRequestCoords(req) || REGION_CENTERS[region] || REGION_CENTERS.ncr;
+      const dest: NavDestination = {
+        id: req.id,
+        name: req.title,
+        address: req.locationDescription || req.details || `${req.contactName || 'Requester'} · ${locationLabel}`,
+        coords,
+        phone: req.contactPhone,
+        type: req.category,
+      };
+      if (onNavigate) {
+        onNavigate(dest);
+      } else {
+        onNavigateToMap();
+      }
+    },
+    [getRequestCoords, onNavigate, onNavigateToMap, region, locationLabel]
   );
 
   // Volunteer coordinates (if location permitted)
@@ -687,79 +716,66 @@ export function VolunteerPortalView({
 
   return (
     <div className="flex-1 flex flex-col bg-background text-foreground min-h-[calc(100vh-4rem)]">
-      {/* ── Top Bar / Identity & Telemetry ── */}
-      <section className="border-b border-border bg-card/60 backdrop-blur px-4 sm:px-8 py-5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black shadow-md shadow-primary/10">
-              <Shield className="h-6 w-6" />
+      {/* ── Decluttered Header & Telemetry ── */}
+      <section className="border-b border-border bg-card/70 backdrop-blur-md px-4 sm:px-6 py-3.5">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-bold shadow-xs">
+              <Shield className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                  {profile ? profile.displayName : 'Volunteer Dispatch Portal'}
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                  {profile ? profile.displayName : 'Volunteer Dispatch Hub'}
                 </h1>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    'text-[10px] uppercase font-mono font-bold px-2 py-0.5',
-                    domainVolunteer.availabilityStatus === 'available'
-                      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                      : domainVolunteer.availabilityStatus === 'on_mission'
-                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-400'
-                      : 'border-muted-foreground/40 bg-muted/20 text-muted-foreground'
-                  )}
-                >
-                  ● {domainVolunteer.availabilityStatus.replace('_', ' ')}
-                </Badge>
-                <Badge variant="secondary" className="text-[10px] font-mono">
-                  {isOnline ? '🟢 Cloud Synced' : '🟡 Offline IndexedDB'}
+                <Badge variant="secondary" className="text-[10px] font-mono px-2 py-0">
+                  {isOnline ? '🟢 Live' : '🟡 Offline'}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-                <span>📍 {profile?.serviceArea || locationLabel}</span>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                <MapPin className="h-3 w-3 text-primary" />
+                <span>{profile?.serviceArea || locationLabel}</span>
                 <span>•</span>
-                <span>Radius: {distanceRadiusMiles} miles</span>
-                <span>•</span>
-                <span>{domainVolunteer.skills.length} Certified Skills</span>
+                <span>Radius: {distanceRadiusMiles > 0 ? `${distanceRadiusMiles} mi` : 'All'}</span>
               </p>
             </div>
           </div>
 
           {/* Quick Actions & Status Toggle */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <div className="flex items-center rounded-xl border border-border bg-background p-1 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 3-State Availability Control */}
+            <div className="flex items-center rounded-xl border border-border bg-background/80 p-0.5 text-xs font-medium">
               <button
                 type="button"
                 onClick={() => handleToggleAvailability('available')}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg font-semibold transition-all',
+                  'px-2.5 py-1 rounded-lg transition-all',
                   domainVolunteer.availabilityStatus === 'available'
-                    ? 'bg-emerald-500/20 text-emerald-400 shadow-xs'
+                    ? 'bg-emerald-500/20 text-emerald-400 font-bold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                Available
+                ● Available
               </button>
               <button
                 type="button"
                 onClick={() => handleToggleAvailability('on_mission')}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg font-semibold transition-all',
+                  'px-2.5 py-1 rounded-lg transition-all',
                   domainVolunteer.availabilityStatus === 'on_mission'
-                    ? 'bg-amber-500/20 text-amber-400 shadow-xs'
+                    ? 'bg-amber-500/20 text-amber-400 font-bold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                On Mission
+                ● On Mission
               </button>
               <button
                 type="button"
                 onClick={() => handleToggleAvailability('offline')}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg font-semibold transition-all',
+                  'px-2.5 py-1 rounded-lg transition-all',
                   domainVolunteer.availabilityStatus === 'offline'
-                    ? 'bg-muted text-foreground'
+                    ? 'bg-muted text-foreground font-bold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -771,192 +787,168 @@ export function VolunteerPortalView({
               variant="outline"
               size="sm"
               onClick={onOpenVolunteerReg}
-              className="text-xs border-border bg-background hover:bg-muted"
+              className="text-xs h-8 border-border hover:bg-muted"
             >
-              <Users className="h-3.5 w-3.5 mr-1.5 text-primary" />
-              Edit Profile
+              <Users className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+              Profile
             </Button>
 
             <Button
               size="sm"
               onClick={() => setNewOfferModalOpen(true)}
-              className="text-xs bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-sm shadow-primary/20"
+              className="text-xs h-8 bg-primary text-primary-foreground font-bold hover:bg-primary/90"
             >
-              <Package className="h-3.5 w-3.5 mr-1.5" />
+              <Package className="h-3.5 w-3.5 mr-1" />
               Offer Supplies
             </Button>
           </div>
         </div>
       </section>
 
-      {/* ── Metric Summary Banners ── */}
-      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-5">
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="p-3.5 rounded-2xl border border-border/80 bg-card flex flex-col justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Nearby Aid Needs</span>
-            <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl font-black text-foreground">{nearbyCount}</span>
-              <span className="text-[10px] text-primary font-mono font-bold">&le; {distanceRadiusMiles} mi</span>
+      {/* ── Compact 4-Metric Strip (Decluttered) ── */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-3.5 pb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div className="px-3.5 py-2.5 rounded-xl border border-border/80 bg-card/60 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-mono uppercase text-muted-foreground">Nearby Needs</p>
+              <p className="text-xl font-bold text-foreground mt-0.5">{nearbyCount}</p>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <LocateFixed className="h-4 w-4" />
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-destructive/30 bg-destructive/5 flex flex-col justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-destructive flex items-center gap-1">
-              <AlertTriangle className="h-3.5 w-3.5" /> Critical Incidents
-            </span>
-            <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl font-black text-destructive">{criticalCount}</span>
-              <span className="text-[10px] text-destructive/80 font-mono">Immediate Aid</span>
+          <div className="px-3.5 py-2.5 rounded-xl border border-destructive/30 bg-destructive/5 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-mono uppercase text-destructive font-semibold">Critical Incidents</p>
+              <p className="text-xl font-bold text-destructive mt-0.5">{criticalCount}</p>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-destructive/15 flex items-center justify-center text-destructive">
+              <AlertTriangle className="h-4 w-4" />
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-border/80 bg-card flex flex-col justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Active Missions</span>
-            <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl font-black text-amber-400">{activeTasks.length}</span>
-              <span className="text-[10px] text-muted-foreground font-mono">In Progress</span>
+          <div className="px-3.5 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-mono uppercase text-amber-400 font-semibold">Active Missions</p>
+              <p className="text-xl font-bold text-amber-400 mt-0.5">{activeTasks.length}</p>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400">
+              <Truck className="h-4 w-4" />
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl border border-border/80 bg-card flex flex-col justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Supplies Allocated</span>
-            <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl font-black text-foreground">
-                {totalAllocatedSupplies} <span className="text-xs text-muted-foreground">/ {totalOfferedSupplies}</span>
-              </span>
-              <span className="text-[10px] text-emerald-400 font-mono font-bold">
-                {Math.max(0, totalOfferedSupplies - totalAllocatedSupplies)} avail
-              </span>
+          <div className="px-3.5 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-mono uppercase text-emerald-400 font-semibold">Completed</p>
+              <p className="text-xl font-bold text-emerald-400 mt-0.5">{completedTasks.length}</p>
             </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl border border-border/80 bg-card flex flex-col justify-between col-span-2 lg:col-span-1">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Completed Rescues</span>
-            <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl font-black text-emerald-400">{completedTasks.length}</span>
-              <span className="text-[10px] text-muted-foreground font-mono">Fulfilled</span>
+            <div className="h-8 w-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+              <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Main Dashboard Tabs ── */}
-      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 pb-12 flex-1 flex flex-col">
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 pb-12 flex-1 flex flex-col">
         <Tabs value={activeTab} onValueChange={(val: any) => setActiveTab(val)} className="flex-1 flex flex-col">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
             <TabsList className="bg-muted/50 p-1 rounded-xl">
               <TabsTrigger value="nearby" className="text-xs font-semibold px-3 py-1.5 rounded-lg">
-                Nearby Requests & Matches
+                Available Tasks
                 <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">
                   {filteredMatches.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="missions" className="text-xs font-semibold px-3 py-1.5 rounded-lg">
-                My Active Missions
+              <TabsTrigger value="missions" className="text-xs font-semibold px-3 py-1.5 rounded-lg relative">
+                My Missions
                 {activeTasks.length > 0 && (
-                  <Badge className="ml-1.5 px-1.5 py-0 text-[10px] bg-amber-500 text-black font-bold">
+                  <Badge className="ml-1.5 px-1.5 py-0 text-[10px] bg-amber-500 text-black font-bold animate-pulse">
                     {activeTasks.length}
                   </Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="resources" className="text-xs font-semibold px-3 py-1.5 rounded-lg">
-                Resource Offers Pool
+                Supply Pool
                 <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">
                   {resourceOffers.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="history" className="text-xs font-semibold px-3 py-1.5 rounded-lg">
-                Fulfillment History
+                History
                 <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">
                   {completedTasks.length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onNavigateToMap}
-                className="text-xs border-border hover:bg-muted"
-              >
-                <Compass className="h-3.5 w-3.5 mr-1 text-primary" />
-                Live Map View
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNavigateToMap}
+              className="text-xs h-8 border-border hover:bg-muted self-start sm:self-auto"
+            >
+              <Compass className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              Live Map View
+            </Button>
           </div>
 
           {/* ════ TAB 1: NEARBY REQUESTS & MATCHING ENGINE ════ */}
-          <TabsContent value="nearby" className="pt-4 flex-1 flex flex-col space-y-4">
-            {/* Filter Toolbar */}
-            <div className="p-3.5 rounded-2xl border border-border/80 bg-card/60 backdrop-blur space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="relative flex-1 min-w-[200px]">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search emergency description, items, or caller…"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9 text-xs bg-background border-border"
-                  />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {/* Category Filter */}
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="h-9 px-3 rounded-xl bg-background border border-border text-xs font-medium text-foreground focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="all">All Categories</option>
-                    <option value="medical">Medical</option>
-                    <option value="food">Food Rations</option>
-                    <option value="water">Drinking Water</option>
-                    <option value="shelter">Shelter</option>
-                    <option value="rescue">Rescue Operations</option>
-                  </select>
-
-                  {/* Severity Filter */}
-                  <select
-                    value={severityFilter}
-                    onChange={(e) => setSeverityFilter(e.target.value)}
-                    className="h-9 px-3 rounded-xl bg-background border border-border text-xs font-medium text-foreground focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="all">All Severities</option>
-                    <option value="critical">Critical</option>
-                    <option value="urgent">Urgent</option>
-                    <option value="moderate">Moderate</option>
-                  </select>
-
-                  {/* Distance Radius Filter (Configurable default 2 miles) */}
-                  <select
-                    value={distanceRadiusMiles}
-                    onChange={(e) => setDistanceRadiusMiles(Number(e.target.value))}
-                    className="h-9 px-3 rounded-xl bg-background border border-border text-xs font-medium text-foreground focus:ring-1 focus:ring-primary"
-                  >
-                    <option value={0.5}>Within 0.5 mile</option>
-                    <option value={1.0}>Within 1.0 mile</option>
-                    <option value={2.0}>Within 2.0 miles (Default)</option>
-                    <option value={5.0}>Within 5.0 miles</option>
-                    <option value={10.0}>Within 10.0 miles</option>
-                    <option value={0}>All Distances & Non-GPS</option>
-                  </select>
-                </div>
+          <TabsContent value="nearby" className="pt-3.5 flex-1 flex flex-col space-y-3.5">
+            {/* Decluttered Filter Toolbar */}
+            <div className="p-3 rounded-xl border border-border/70 bg-card/60 backdrop-blur-xs flex flex-wrap items-center gap-2.5">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search incident, needed items, or caller…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 h-8 text-xs bg-background border-border"
+                />
               </div>
 
-              {/* Advisory Disclaimer Notice */}
-              <div className="px-3 py-2 rounded-xl bg-muted/40 border border-border/60 text-[11px] text-muted-foreground flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Info className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <strong>Advisory Disclaimer:</strong> {ADVISORY_DISCLAIMER}
-                </span>
-                <span className="font-mono text-primary font-semibold shrink-0 ml-2">
-                  Matching Engine v2.0
-                </span>
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'rescue', label: 'Rescue' },
+                  { id: 'medical', label: 'Medical' },
+                  { id: 'food', label: 'Food & Water' },
+                  { id: 'shelter', label: 'Shelter' },
+                  { id: 'evacuation', label: 'Evac' },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryFilter(cat.id)}
+                    className={cn(
+                      'text-xs px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-all',
+                      categoryFilter === cat.id
+                        ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                        : 'bg-muted/60 text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
+
+              {/* Distance Radius Select */}
+              <select
+                value={distanceRadiusMiles}
+                onChange={(e) => setDistanceRadiusMiles(Number(e.target.value))}
+                className="h-8 px-2.5 rounded-lg bg-background border border-border text-xs font-medium text-foreground"
+                aria-label="Distance filter"
+              >
+                <option value={1.0}>&le; 1 mi</option>
+                <option value={2.0}>&le; 2 mi</option>
+                <option value={5.0}>&le; 5 mi</option>
+                <option value={0}>All Distances</option>
+              </select>
             </div>
 
-            {/* Recommendations List */}
+            {/* Recommendations Grid */}
             {filteredMatches.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-12 border border-dashed border-border rounded-2xl text-center space-y-3">
                 <div className="h-12 w-12 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground">
@@ -981,7 +973,7 @@ export function VolunteerPortalView({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {filteredMatches.map(({ aidRequest, recommendation, distanceMiles }) => {
                   const isExpanded = expandedRecId === aidRequest.id;
                   const hasActiveTask = tasks.some(
@@ -995,77 +987,77 @@ export function VolunteerPortalView({
                     <div
                       key={aidRequest.id}
                       className={cn(
-                        'p-4 rounded-2xl border transition-all bg-card flex flex-col justify-between',
+                        'p-4 rounded-xl border transition-all bg-card flex flex-col justify-between hover:border-primary/40 shadow-xs',
                         aidRequest.priority === 'critical'
-                          ? 'border-destructive/40 shadow-sm shadow-destructive/5'
-                          : 'border-border/80 hover:border-border'
+                          ? 'border-l-4 border-l-destructive border-border/80'
+                          : aidRequest.priority === 'urgent'
+                          ? 'border-l-4 border-l-amber-500 border-border/80'
+                          : 'border-l-4 border-l-info border-border/80'
                       )}
                     >
                       <div>
-                        {/* Header: Score Badge + Category & Severity */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={cn(
-                                'text-xs font-mono font-extrabold px-2.5 py-1 rounded-lg border flex items-center gap-1.5',
-                                recommendation.score >= 70
-                                  ? 'bg-primary/20 border-primary text-primary shadow-xs'
-                                  : recommendation.score >= 45
-                                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                                  : 'bg-muted border-border text-muted-foreground'
-                              )}
-                            >
-                              <span>{recommendation.score}% Match</span>
-                              <span className="text-[10px] font-normal uppercase opacity-80">
-                                ({recommendation.confidence})
-                              </span>
-                            </span>
-
+                        {/* Header: Urgency + Category + Match Score + Distance */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             <Badge
                               variant="outline"
                               className={cn(
-                                'text-[10px] uppercase font-mono font-bold',
+                                'text-[10px] uppercase font-mono font-bold px-1.5 py-0',
                                 aidRequest.priority === 'critical'
                                   ? 'border-destructive text-destructive bg-destructive/10'
                                   : aidRequest.priority === 'urgent'
                                   ? 'border-amber-500 text-amber-400 bg-amber-500/10'
-                                  : 'border-border text-muted-foreground'
+                                  : 'border-info text-info bg-info/10'
                               )}
                             >
                               {aidRequest.priority}
                             </Badge>
 
-                            <Badge variant="secondary" className="text-[10px] uppercase font-mono">
+                            <Badge variant="secondary" className="text-[10px] uppercase font-mono px-1.5 py-0">
                               {aidRequest.category}
                             </Badge>
+
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
+                              🎯 {recommendation.score}%
+                            </span>
                           </div>
 
-                          {/* Distance or Non-Geographic Indicator */}
                           <div className="text-right shrink-0">
                             {recommendation.isGeographicMatch && distanceMiles !== null ? (
-                              <span className="text-xs font-mono font-bold text-foreground">
-                                📍 {distanceMiles.toFixed(1)} mi away
+                              <span className="text-xs font-mono font-semibold text-foreground flex items-center gap-1">
+                                <MapPin className="h-3 w-3 text-primary" />
+                                {distanceMiles.toFixed(1)} mi
                               </span>
                             ) : (
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                                Non-GPS Landmark
+                              <span className="text-[10px] font-mono text-muted-foreground">
+                                {aidRequest.locationDescription ? aidRequest.locationDescription.slice(0, 18) : 'Landmark'}
                               </span>
                             )}
                           </div>
                         </div>
 
                         {/* Title & Details */}
-                        <h3 className="text-base font-bold text-foreground mt-3 leading-snug">
+                        <h3 className="text-sm sm:text-base font-bold text-foreground mt-2 leading-snug">
                           {aidRequest.title}
                         </h3>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                           {aidRequest.details}
                         </p>
 
-                        {/* Required Resources Chips */}
-                        {aidRequest.items && aidRequest.items.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-3">
-                            {aidRequest.items.map((item, idx) => (
+                        {/* Caller Info & Required items */}
+                        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                          {aidRequest.contactPhone && (
+                            <a
+                              href={`tel:${aidRequest.contactPhone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[11px] font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-md hover:underline"
+                            >
+                              <Phone className="h-3 w-3" />
+                              {aidRequest.contactPhone}
+                            </a>
+                          )}
+                          {aidRequest.items &&
+                            aidRequest.items.slice(0, 3).map((item, idx) => (
                               <span
                                 key={idx}
                                 className="px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-[10px] font-mono"
@@ -1073,67 +1065,71 @@ export function VolunteerPortalView({
                                 {item}
                               </span>
                             ))}
-                          </div>
-                        )}
+                        </div>
 
-                        {/* Collapsible Recommendation Factors Breakdown */}
-                        <div className="mt-3 pt-2.5 border-t border-border/60">
+                        {/* Minimal Match breakdown toggle */}
+                        <div className="mt-2.5 pt-2 border-t border-border/40">
                           <button
                             type="button"
                             onClick={() => setExpandedRecId(isExpanded ? null : aidRequest.id)}
-                            className="w-full flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground font-mono"
+                            className="text-[11px] text-muted-foreground hover:text-foreground font-mono flex items-center gap-1"
                           >
-                            <span>Matching Criteria Breakdown</span>
-                            {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                            <span>Matching Factors</span>
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                           </button>
-
                           {isExpanded && (
-                            <div className="mt-2 space-y-1.5 p-2.5 rounded-xl bg-muted/30 border border-border/40 text-[11px]">
+                            <div className="mt-2 p-2 rounded-lg bg-muted/30 border border-border/40 text-[11px] space-y-1">
                               {recommendation.factors.map((f, idx) => (
-                                <div key={idx} className="flex items-center justify-between">
-                                  <span className="text-muted-foreground">{f.factor}:</span>
-                                  <span className="font-mono font-semibold text-foreground">
-                                    {f.score} / {f.maxScore} pts
-                                  </span>
+                                <div key={idx} className="flex justify-between text-muted-foreground">
+                                  <span>{f.factor}:</span>
+                                  <span className="font-mono text-foreground">{f.score}/{f.maxScore} pts</span>
                                 </div>
                               ))}
-                              {!recommendation.isEligible && recommendation.ineligibilityReason && (
-                                <div className="p-2 rounded-lg bg-destructive/10 text-destructive text-[10px] font-mono mt-1">
-                                  {recommendation.ineligibilityReason}
-                                </div>
-                              )}
                             </div>
                           )}
                         </div>
                       </div>
 
-                      {/* Actions Footer */}
-                      <div className="mt-4 pt-3 border-t border-border/80 flex items-center justify-between gap-2">
+                      {/* Actions Footer with Prominent Directions button */}
+                      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onOpenDetailsModal(aidRequest.id)}
-                          className="text-xs text-muted-foreground hover:text-foreground h-9"
+                          className="text-xs text-muted-foreground hover:text-foreground h-8 px-2"
                         >
                           <Eye className="h-3.5 w-3.5 mr-1" />
-                          Inspect Details
+                          Details
                         </Button>
 
-                        {hasActiveTask ? (
-                          <Badge variant="outline" className="text-xs font-mono text-amber-400 border-amber-500/40">
-                            Claimed / In-Progress
-                          </Badge>
-                        ) : (
+                        <div className="flex items-center gap-2">
+                          {/* DIRECTIONS BUTTON */}
                           <Button
+                            variant="outline"
                             size="sm"
-                            disabled={!recommendation.isEligible}
-                            onClick={() => handleAcceptTask(aidRequest)}
-                            className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 text-xs h-9 px-4 shadow-sm shadow-primary/20"
+                            onClick={() => handleDirections(aidRequest)}
+                            className="text-xs h-8 border-primary/30 hover:bg-primary/10 text-primary font-semibold"
                           >
-                            <HeartHandshake className="h-3.5 w-3.5 mr-1.5" />
-                            Accept & Dispatch
+                            <Navigation className="h-3.5 w-3.5 mr-1" />
+                            Directions
                           </Button>
-                        )}
+
+                          {hasActiveTask ? (
+                            <Badge variant="outline" className="text-xs font-mono text-amber-400 border-amber-500/40">
+                              Claimed
+                            </Badge>
+                          ) : (
+                            <Button
+                              size="sm"
+                              disabled={!recommendation.isEligible}
+                              onClick={() => handleAcceptTask(aidRequest)}
+                              className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 text-xs h-8 px-3"
+                            >
+                              <HeartHandshake className="h-3.5 w-3.5 mr-1" />
+                              Accept
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1215,7 +1211,29 @@ export function VolunteerPortalView({
 
                       {/* State Machine Transition Buttons */}
                       <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border/60">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              if (matchingReq) {
+                                handleDirections(matchingReq);
+                              } else {
+                                onNavigate?.({
+                                  id: task.emergencyRequestId,
+                                  name: `Rescue Incident #${task.emergencyRequestId.slice(-6)}`,
+                                  address: locationLabel,
+                                  coords: REGION_CENTERS[region] || REGION_CENTERS.ncr,
+                                  type: 'emergency',
+                                });
+                              }
+                            }}
+                            className="text-xs border-primary/40 text-primary hover:bg-primary/10 font-bold"
+                          >
+                            <Navigation className="h-3.5 w-3.5 mr-1 text-primary" />
+                            Directions
+                          </Button>
+
                           {task.status === 'accepted' && (
                             <Button
                               size="sm"

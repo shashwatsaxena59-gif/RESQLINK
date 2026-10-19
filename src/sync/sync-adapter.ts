@@ -61,15 +61,26 @@ export class ExpressApiAdapter implements RemoteBackendAdapter {
     return headers;
   }
 
+  private lastAvailableCheck: { result: boolean; timestamp: number } | null = null;
+
   public async isAvailable(): Promise<boolean> {
+    const now = Date.now();
+    // Cache positive/negative result for 6 seconds to eliminate repeated blocking roundtrips
+    if (this.lastAvailableCheck && now - this.lastAvailableCheck.timestamp < 6000) {
+      return this.lastAvailableCheck.result;
+    }
+
     try {
       const res = await fetch(`${this.baseUrl}/api/health`, {
         method: 'GET',
         headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(800),
       });
-      return res.ok;
+      const ok = res.ok;
+      this.lastAvailableCheck = { result: ok, timestamp: now };
+      return ok;
     } catch {
+      this.lastAvailableCheck = { result: false, timestamp: now };
       return false;
     }
   }
