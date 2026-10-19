@@ -2,17 +2,20 @@
 
 ### AI-Powered Disaster Response & Rescue Assistance Platform
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-resqlink--final.onrender.com-brightgreen?style=for-the-badge&logo=render)](https://resqlink-final.onrender.com/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-RESQLINK-blue?style=for-the-badge&logo=github)](https://github.com/shashwatsaxena59-gif/RESQLINK)
+
 ResQLink is a disaster-response web application designed to help people **find assistance, report emergencies, locate nearby shelters, and coordinate rescue efforts** during natural disasters.
 
 The platform brings essential emergency-response information into one place through an intuitive and responsive interface.
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live Application Link
 
-🚀 **[Try ResQLink Live](https://resqlink-final.onrender.com/)**
+🔗 **[Open ResQLink Live App](https://resqlink-final.onrender.com/)**
 
-> **Note:** The live demo is hosted on Render. The application may take a short time to load if the server is waking up.
+> **Note:** The live demo is deployed on Render. If the server is in sleep mode, it may take 30–60 seconds to wake up on the first visit.
 
 ---
 
@@ -175,13 +178,13 @@ ResQLink/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/bhumikaa0006-create/ResQLinkk.git
+git clone https://github.com/shashwatsaxena59-gif/RESQLINK.git
 ```
 
 ### 2. Navigate to the Project
 
 ```bash
-cd ResQLinkk
+cd RESQLINK
 ```
 
 ### 3. Install Dependencies
