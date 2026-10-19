@@ -2,7 +2,7 @@
 
 ### AI-Powered Disaster Response & Rescue Assistance Platform
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-resqlink--final.onrender.com-brightgreen?style=for-the-badge&logo=render)](https://resqlink-final.onrender.com/)
+[![Local App](https://img.shields.io/badge/💻_Local_App-localhost%3A5173-blue?style=for-the-badge)](http://localhost:5173)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-RESQLINK-blue?style=for-the-badge&logo=github)](https://github.com/shashwatsaxena59-gif/RESQLINK)
 
 ResQLink is a disaster-response web application designed to help people **find assistance, report emergencies, locate nearby shelters, and coordinate rescue efforts** during natural disasters.
@@ -11,11 +11,14 @@ The platform brings essential emergency-response information into one place thro
 
 ---
 
-## 🌐 Live Application Link
+## 💻 Local Application Link
 
-🔗 **[Open ResQLink Live App](https://resqlink-final.onrender.com/)**
+When running the project locally, open the app directly at:
 
-> **Note:** The live demo is deployed on Render. If the server is in sleep mode, it may take 30–60 seconds to wake up on the first visit.
+🔗 **[http://localhost:5173](http://localhost:5173)**
+
+* **Frontend:** [http://localhost:5173](http://localhost:5173)
+* **Backend API Server:** [http://localhost:3001](http://localhost:3001)
 
 ---
 
@@ -128,9 +131,9 @@ The application is designed to provide a smooth experience across:
 * VS Code
 * Vite Development Server
 
-### Deployment
+### Deployment & Hosting
 
-* Render
+* Localhost (`http://localhost:5173`)
 
 ---
 
@@ -293,9 +296,9 @@ ResQLink is continuously being improved with new disaster-response and emergency
 
 ---
 
-## 👩‍💻 Author
+## 👨‍💻 Author
 
-**Bhumika**
+**Shashwat Saxena** ([@shashwatsaxena59-gif](https://github.com/shashwatsaxena59-gif))
 
 A disaster-response technology project focused on making emergency assistance more accessible, organized, and responsive.
 
