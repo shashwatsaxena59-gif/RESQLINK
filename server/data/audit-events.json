@@ -1,0 +1,266 @@
+[
+  {
+    "id": "audit-1791986272887-yf8nk",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T13:57:52.887Z"
+  },
+  {
+    "id": "audit-1791986915067-rqj02",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:08:35.067Z"
+  },
+  {
+    "id": "audit-1791986999809-1222c",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:09:59.809Z"
+  },
+  {
+    "id": "audit-1791987066444-ij0d5",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:11:06.444Z"
+  },
+  {
+    "id": "audit-1791987133340-o8e77",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:12:13.340Z"
+  },
+  {
+    "id": "audit-1791987189474-7pn9y",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:13:09.474Z"
+  },
+  {
+    "id": "audit-1791987237216-vzimd",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:13:57.216Z"
+  },
+  {
+    "id": "audit-1791987404212-jrlri",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:16:44.212Z"
+  },
+  {
+    "id": "audit-1791987640450-44gt4",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "user",
+    "entityId": "user-coord-001",
+    "details": {
+      "email": "coordinator@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:20:40.450Z"
+  },
+  {
+    "id": "audit-1791987656804-7i5td",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "user",
+    "entityId": "user-coord-001",
+    "details": {
+      "email": "coordinator@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:20:56.804Z"
+  },
+  {
+    "id": "audit-1791987672426-irliv",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-vol-001",
+    "actorRole": "volunteer",
+    "entityType": "user",
+    "entityId": "user-vol-001",
+    "details": {
+      "email": "volunteer@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:21:12.426Z"
+  },
+  {
+    "id": "audit-1791987685533-b1brd",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-shelter-001",
+    "actorRole": "shelter_officer",
+    "entityType": "user",
+    "entityId": "user-shelter-001",
+    "details": {
+      "email": "shelter.officer@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:21:25.533Z"
+  },
+  {
+    "id": "audit-1791987733833-ijm4x",
+    "action": "REQUEST_CREATED",
+    "actorId": "anonymous",
+    "actorRole": "requester",
+    "entityType": "emergency_request",
+    "entityId": "req-live-med-test-1",
+    "details": {
+      "category": "medical",
+      "priority": "critical"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:22:13.833Z"
+  },
+  {
+    "id": "audit-1791987733851-5ucbs",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-vol-001",
+    "actorRole": "volunteer",
+    "entityType": "user",
+    "entityId": "user-vol-001",
+    "details": {
+      "email": "volunteer@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:22:13.851Z"
+  },
+  {
+    "id": "audit-1791987733869-nbkix",
+    "action": "AUTH_LOGIN",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "user",
+    "entityId": "user-coord-001",
+    "details": {
+      "email": "coordinator@resqlink.org"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:22:13.869Z"
+  },
+  {
+    "id": "audit-1791987753502-8imnj",
+    "action": "REQUEST_CREATED",
+    "actorId": "anonymous",
+    "actorRole": "requester",
+    "entityType": "emergency_request",
+    "entityId": "req-sse-broadcast-test",
+    "details": {
+      "category": "rescue",
+      "priority": "critical"
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:22:33.503Z"
+  },
+  {
+    "id": "audit-1791988243007-7tcf0",
+    "action": "DEMO_LOGIN_SWITCH",
+    "actorId": "user-vol-001",
+    "actorRole": "volunteer",
+    "entityType": "user",
+    "entityId": "user-vol-001",
+    "details": {
+      "role": "volunteer",
+      "isDemo": true
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:30:43.007Z"
+  },
+  {
+    "id": "audit-1791989217168-zzgfa",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:46:57.168Z"
+  },
+  {
+    "id": "audit-1791989691460-x4jjx",
+    "action": "TEST_SHELTER_OVERRIDE",
+    "actorId": "user-coord-001",
+    "actorRole": "coordinator",
+    "entityType": "shelter",
+    "entityId": "shelter-001",
+    "details": {
+      "reason": "Emergency overflow triage"
+    },
+    "ipAddress": "127.0.0.1",
+    "timestamp": "2026-10-14T14:54:51.460Z"
+  },
+  {
+    "id": "audit-1791989990265-dch19",
+    "action": "DEMO_LOGIN_SWITCH",
+    "actorId": "user-vol-001",
+    "actorRole": "volunteer",
+    "entityType": "user",
+    "entityId": "user-vol-001",
+    "details": {
+      "role": "volunteer",
+      "isDemo": true
+    },
+    "ipAddress": "::1",
+    "timestamp": "2026-10-14T14:59:50.265Z"
+  }
+]

@@ -1,0 +1,67 @@
+{
+  "name": "ResQLink — Offline Disaster Response & Resource Matcher",
+  "short_name": "ResQLink",
+  "description": "Offline-first disaster response, emergency aid coordination, shelter management, and volunteer matching.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c1827",
+  "theme_color": "#0f172a",
+  "categories": ["utilities", "emergency", "medical", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Emergency SOS",
+      "short_name": "SOS",
+      "description": "Request immediate emergency rescue or medical aid",
+      "url": "/?action=sos",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Shelter Directory",
+      "short_name": "Shelters",
+      "description": "Find nearby safe emergency shelters and available beds",
+      "url": "/?tab=shelters",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Operations Command Center",
+      "short_name": "Command",
+      "description": "Coordinate emergency requests and volunteers",
+      "url": "/?tab=command",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "users": [
+    {
+      "id": "user-coord-001",
+      "email": "coordinator@resqlink.org",
+      "passwordHash": "bc220a83447848d66fb490109c82c2eb2d0cd2c35023e32ef63247c0926d8c56",
+      "name": "Chief Officer R. Sharma",
+      "role": "coordinator",
+      "createdAt": 1710000000000
+    },
+    {
+      "id": "user-shelter-001",
+      "email": "shelter.officer@resqlink.org",
+      "passwordHash": "5ef446ada316f7849a6aca191a2b40174d03bff0269bfca41ed065bbaaa1d445",
+      "name": "Officer K. Verma (Mayur Vihar)",
+      "role": "shelter_officer",
+      "assignedShelterId": "shelter-001",
+      "createdAt": 1710000000000
+    },
+    {
+      "id": "user-vol-001",
+      "email": "volunteer@resqlink.org",
+      "passwordHash": "d5a085f3156462ba17f741acf7195b939a392bd403449f4e27bccff2c79fb60c",
+      "name": "A. Patel (Rapid Response)",
+      "role": "volunteer",
+      "skills": [
+        "first_aid",
+        "triage",
+        "water_rescue"
+      ],
+      "createdAt": 1710000000000
+    },
+    {
+      "id": "user-citizen-001",
+      "email": "citizen@resqlink.org",
+      "passwordHash": "71ebb0e643f08637cc579e0a542e0c3fe323de453afaa0c70cbb18ef30f83224",
+      "name": "P. Kumar (Displaced Citizen)",
+      "role": "requester",
+      "createdAt": 1710000000000
+    }
+  ],
+  "version": 1
+}

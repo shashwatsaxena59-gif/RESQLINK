@@ -1,0 +1,37 @@
+{
+  "offers": [
+    {
+      "id": "offer-001",
+      "title": "Clean Bottled Water (500L packs)",
+      "category": "water",
+      "quantity": 500,
+      "unit": "liters",
+      "quantityAllocated": 120,
+      "status": "available",
+      "location": "Community Center, Sector 15, Rohini",
+      "latitude": 28.718,
+      "longitude": 77.126,
+      "contactName": "Rohini Seva Trust",
+      "contactPhone": "+91 98110 22334",
+      "createdAt": "2026-10-14T14:19:48.574Z",
+      "updatedAt": "2026-10-14T14:19:48.574Z"
+    },
+    {
+      "id": "offer-002",
+      "title": "Warm Blankets & Sleeping Mats",
+      "category": "shelter",
+      "quantity": 150,
+      "unit": "units",
+      "quantityAllocated": 50,
+      "status": "available",
+      "location": "Gurudwara Bangla Sahib Langar Hall",
+      "latitude": 28.626,
+      "longitude": 77.209,
+      "contactName": "Gurudwara Relief Wing",
+      "contactPhone": "+91 11 2336 5486",
+      "createdAt": "2026-10-14T14:19:48.574Z",
+      "updatedAt": "2026-10-14T14:19:48.574Z"
+    }
+  ],
+  "version": 1
+}

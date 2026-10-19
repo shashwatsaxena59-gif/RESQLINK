@@ -1,0 +1,31 @@
+{
+  "ngos": [
+    {
+      "id": "ngo-1787319217582-z4w909",
+      "name": "Happy Path NGO",
+      "contactPerson": "Test Admin",
+      "phone": "+91 98100 11122",
+      "email": "happypath@ngo.org",
+      "serviceArea": "Bangalore",
+      "description": "Works correctly",
+      "verificationStatus": "PENDING",
+      "passwordHash": "h4iigm7a",
+      "createdAt": 1787319217582
+    },
+    {
+      "id": "ngo-1787323967857-6fipoq",
+      "name": "national",
+      "contactPerson": "Samriddhi Jaiswal",
+      "phone": "8445179494",
+      "email": "samriddhijaiswal2205@gmail.com",
+      "serviceArea": "delhi",
+      "description": "help",
+      "verificationStatus": "PENDING",
+      "passwordHash": "hnzmv6r6",
+      "createdAt": 1787323967857
+    }
+  ],
+  "volunteers": [],
+  "tasks": [],
+  "version": 3
+}

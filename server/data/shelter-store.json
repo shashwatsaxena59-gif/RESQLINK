@@ -1,0 +1,465 @@
+{
+  "shelters": [
+    {
+      "id": "shelter-001",
+      "name": "Rajkiya Sarvodaya Bal Vidyalaya, Mayur Vihar",
+      "address": "Pocket 1, Mayur Vihar Phase I, East Delhi",
+      "latitude": 28.601,
+      "longitude": 77.295,
+      "coords": {
+        "x": 28,
+        "y": 50
+      },
+      "totalCapacity": 60,
+      "occupiedBeds": 45,
+      "reservedBeds": 5,
+      "capacity": 60,
+      "occupied": 45,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Pet-friendly",
+        "Accessible",
+        "Hot meals (ISKCON)",
+        "Medical staff"
+      ],
+      "contactPhone": "+91 11 2275 1100",
+      "region": "ncr",
+      "lastUpdatedAt": "2026-10-14T14:19:48.572Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 1800,
+          "unit": "liters",
+          "minThreshold": 400,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 450,
+          "unit": "packets",
+          "minThreshold": 100,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 150,
+          "unit": "units",
+          "minThreshold": 50,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "cots": {
+          "quantity": 60,
+          "unit": "units",
+          "minThreshold": 20,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "first_aid_kits": {
+          "quantity": 24,
+          "unit": "kits",
+          "minThreshold": 10,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [
+        {
+          "id": "del-001",
+          "item": "blankets",
+          "quantity": 50,
+          "unit": "units",
+          "expectedAt": "2026-10-14T16:19:48.573Z",
+          "source": "Red Cross Depot",
+          "status": "in_transit",
+          "notes": "En route via transport van DL-1V-4421"
+        }
+      ],
+      "resourceShortages": []
+    },
+    {
+      "id": "shelter-002",
+      "name": "Talkatora Indoor Stadium",
+      "address": "Willingdon Crescent, New Delhi",
+      "latitude": 28.621,
+      "longitude": 77.195,
+      "coords": {
+        "x": 64,
+        "y": 68
+      },
+      "totalCapacity": 120,
+      "occupiedBeds": 118,
+      "reservedBeds": 2,
+      "capacity": 120,
+      "occupied": 118,
+      "operatingStatus": "full",
+      "status": "full",
+      "amenities": [
+        "Cots provided",
+        "Family rooms",
+        "Charging station",
+        "24/7 Security"
+      ],
+      "contactPhone": "+91 11 2309 3322",
+      "region": "ncr",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 3200,
+          "unit": "liters",
+          "minThreshold": 600,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 550,
+          "unit": "packets",
+          "minThreshold": 200,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 120,
+          "unit": "units",
+          "minThreshold": 40,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "hygiene_kits": {
+          "quantity": 25,
+          "unit": "kits",
+          "minThreshold": 50,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [
+        {
+          "id": "del-002",
+          "item": "hygiene_kits",
+          "quantity": 100,
+          "unit": "kits",
+          "expectedAt": "2026-10-14T17:49:48.573Z",
+          "source": "Delhi Civil Defence Warehouse",
+          "status": "scheduled",
+          "notes": "Priority restocking shipment"
+        }
+      ],
+      "resourceShortages": [
+        "hygiene_kits"
+      ]
+    },
+    {
+      "id": "shelter-003",
+      "name": "Ramleela Ground, Red Fort",
+      "address": "Chandni Chowk, Old Delhi",
+      "latitude": 28.652,
+      "longitude": 77.234,
+      "coords": {
+        "x": 82,
+        "y": 38
+      },
+      "totalCapacity": 100,
+      "occupiedBeds": 72,
+      "reservedBeds": 3,
+      "capacity": 100,
+      "occupied": 72,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Hot meals (Gurudwara)",
+        "Quiet space",
+        "Counseling",
+        "Medical outpost"
+      ],
+      "contactPhone": "+91 11 2327 5544",
+      "region": "ncr",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 1500,
+          "unit": "liters",
+          "minThreshold": 300,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 400,
+          "unit": "packets",
+          "minThreshold": 100,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 95,
+          "unit": "units",
+          "minThreshold": 30,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "baby_supplies": {
+          "quantity": 30,
+          "unit": "kits",
+          "minThreshold": 15,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    },
+    {
+      "id": "shelter-004",
+      "name": "Chhatrasal Stadium",
+      "address": "Model Town, North Delhi",
+      "latitude": 28.705,
+      "longitude": 77.189,
+      "coords": {
+        "x": 16,
+        "y": 36
+      },
+      "totalCapacity": 200,
+      "occupiedBeds": 134,
+      "reservedBeds": 10,
+      "capacity": 200,
+      "occupied": 134,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Large capacity",
+        "Medical staff (GTB Hospital)",
+        "Pet-friendly",
+        "Showers"
+      ],
+      "contactPhone": "+91 11 2745 2200",
+      "region": "ncr",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 4500,
+          "unit": "liters",
+          "minThreshold": 1000,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 1100,
+          "unit": "packets",
+          "minThreshold": 300,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 220,
+          "unit": "units",
+          "minThreshold": 80,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "cots": {
+          "quantity": 180,
+          "unit": "units",
+          "minThreshold": 50,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    },
+    {
+      "id": "ch-shelter-001",
+      "name": "ITBP Camp — Joshimath",
+      "address": "ITBP Campus, Upper Joshimath, Chamoli",
+      "latitude": 30.556,
+      "longitude": 79.564,
+      "coords": {
+        "x": 52,
+        "y": 28
+      },
+      "totalCapacity": 500,
+      "occupiedBeds": 180,
+      "reservedBeds": 20,
+      "capacity": 500,
+      "occupied": 180,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Helipad",
+        "Medical unit",
+        "Rations",
+        "Blankets",
+        "Radio comms",
+        "24/7"
+      ],
+      "contactPhone": "01389-222001",
+      "region": "badrinath",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 8000,
+          "unit": "liters",
+          "minThreshold": 1500,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 2000,
+          "unit": "packets",
+          "minThreshold": 500,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 400,
+          "unit": "units",
+          "minThreshold": 100,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "oxygen_cylinders": {
+          "quantity": 30,
+          "unit": "cylinders",
+          "minThreshold": 10,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    },
+    {
+      "id": "ch-shelter-002",
+      "name": "Govt Inter College — Joshimath",
+      "address": "Upper Market Area, Joshimath, Chamoli",
+      "latitude": 30.559,
+      "longitude": 79.568,
+      "coords": {
+        "x": 44,
+        "y": 46
+      },
+      "totalCapacity": 300,
+      "occupiedBeds": 220,
+      "reservedBeds": 30,
+      "capacity": 300,
+      "occupied": 220,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Accessible",
+        "Hot meals (Gurudwara Govindghat)",
+        "Toilets",
+        "Water supply"
+      ],
+      "contactPhone": "01389-222110",
+      "region": "badrinath",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 3500,
+          "unit": "liters",
+          "minThreshold": 800,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 800,
+          "unit": "packets",
+          "minThreshold": 250,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 250,
+          "unit": "units",
+          "minThreshold": 75,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    },
+    {
+      "id": "ch-shelter-003",
+      "name": "Narsingh Temple Dharamshala",
+      "address": "Near Narsingh Temple, Upper Joshimath",
+      "latitude": 30.554,
+      "longitude": 79.561,
+      "coords": {
+        "x": 48,
+        "y": 38
+      },
+      "totalCapacity": 150,
+      "occupiedBeds": 90,
+      "reservedBeds": 10,
+      "capacity": 150,
+      "occupied": 90,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Kitchen",
+        "Blankets",
+        "Safe elevation",
+        "Prayers"
+      ],
+      "contactPhone": "01389-222340",
+      "region": "badrinath",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 1800,
+          "unit": "liters",
+          "minThreshold": 400,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 500,
+          "unit": "packets",
+          "minThreshold": 150,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 120,
+          "unit": "units",
+          "minThreshold": 40,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    },
+    {
+      "id": "ch-shelter-004",
+      "name": "Auli GMVN Rest House",
+      "address": "Auli Ski Resort Area, 2,519 m altitude",
+      "latitude": 30.531,
+      "longitude": 79.571,
+      "coords": {
+        "x": 36,
+        "y": 20
+      },
+      "totalCapacity": 120,
+      "occupiedBeds": 30,
+      "reservedBeds": 5,
+      "capacity": 120,
+      "occupied": 30,
+      "operatingStatus": "open",
+      "status": "open",
+      "amenities": [
+        "Heated rooms",
+        "High-altitude staging",
+        "Generator backup",
+        "Catering"
+      ],
+      "contactPhone": "01389-223208",
+      "region": "badrinath",
+      "lastUpdatedAt": "2026-10-14T14:19:48.573Z",
+      "inventory": {
+        "water_liters": {
+          "quantity": 2000,
+          "unit": "liters",
+          "minThreshold": 400,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "meals": {
+          "quantity": 400,
+          "unit": "packets",
+          "minThreshold": 100,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "blankets": {
+          "quantity": 150,
+          "unit": "units",
+          "minThreshold": 50,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        },
+        "heating_fuel_liters": {
+          "quantity": 500,
+          "unit": "liters",
+          "minThreshold": 100,
+          "lastRestockedAt": "2026-10-14T14:19:48.573Z"
+        }
+      },
+      "incomingDeliveries": [],
+      "resourceShortages": []
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,233 @@
+{
+  "requests": [
+    {
+      "id": "req-sse-broadcast-test",
+      "title": "Flash Flood Rescue",
+      "details": "Boat needed",
+      "category": "rescue",
+      "priority": "critical",
+      "status": "active",
+      "contactName": "Local Watch",
+      "contactPhone": "9988776655",
+      "coords": {
+        "x": 77.29,
+        "y": 28.61
+      }
+    },
+    {
+      "id": "req-live-med-test-1",
+      "title": "Urgent Insulin Support",
+      "details": "Patient has severe Type 1 Diabetes",
+      "category": "medical",
+      "priority": "critical",
+      "status": "active",
+      "contactName": "Sunita Sharma",
+      "contactPhone": "9876543210",
+      "coords": {
+        "x": 77.25,
+        "y": 28.55
+      },
+      "confidentialMedicalDetails": "Patient is on daily Lantus 24u and Humalog sliding scale, currently hypoglycemic at 48 mg/dL",
+      "locationPermission": true
+    },
+    {
+      "id": "triage-1787343136767",
+      "category": "rescue",
+      "priority": "critical",
+      "status": "active",
+      "title": "SOS: Trapped Emergency",
+      "details": "Hum 4 log Yamuna ke paas phas gaye hain, ek elderly person hain aur pani ghar ke first floor tak aa gaya hai.",
+      "items": [
+        "Evacuation",
+        "Rescue Boat",
+        "Emergency Shelter",
+        "Medical Assistance"
+      ],
+      "contactName": "Emergency Requester",
+      "contactPhone": "+91 98110 00112",
+      "distanceMiles": 0.1,
+      "createdAt": 1787343136767,
+      "coords": {
+        "y": 28.6139,
+        "x": 77.209
+      },
+      "peopleCount": 4,
+      "isUserCreated": true,
+      "region": "ncr",
+      "triage": {
+        "priority": "CRITICAL",
+        "incidentType": "Trapped",
+        "people": 4,
+        "vulnerable": {
+          "elderly": 1,
+          "children": 0,
+          "pregnant": 0,
+          "disabled": 0,
+          "injured": 0
+        },
+        "dangerIndicators": [
+          "Water level rising — first floor"
+        ],
+        "priorityReasons": [
+          "4 people affected",
+          "1 elderly person(s) present",
+          "Person(s) trapped — immediate evacuation required",
+          "Flood water at dangerous level"
+        ],
+        "requiredResources": [
+          "Evacuation",
+          "Rescue Boat",
+          "Emergency Shelter",
+          "Medical Assistance"
+        ],
+        "rawMessage": "Hum 4 log Yamuna ke paas phas gaye hain, ek elderly person hain aur pani ghar ke first floor tak aa gaya hai.",
+        "parsedBy": "fallback"
+      }
+    },
+    {
+      "id": "triage-1787343020425",
+      "category": "medical",
+      "priority": "urgent",
+      "status": "active",
+      "title": "SOS: Medical Emergency Emergency",
+      "details": "Meri dadi behosh ho gayi hain, oxygen khatam ho raha hai, ambulance nahi aa rahi. Hum Mayur Vihar mein hain.",
+      "items": [
+        "Medical Assistance"
+      ],
+      "contactName": "Emergency Requester",
+      "contactPhone": "+91 98110 00112",
+      "distanceMiles": 0.1,
+      "createdAt": 1787343020425,
+      "coords": {
+        "y": 28.6139,
+        "x": 77.209
+      },
+      "peopleCount": 1,
+      "isUserCreated": true,
+      "region": "ncr",
+      "triage": {
+        "priority": "MEDIUM",
+        "incidentType": "Medical Emergency",
+        "people": null,
+        "vulnerable": {
+          "elderly": 0,
+          "children": 0,
+          "pregnant": 0,
+          "disabled": 0,
+          "injured": 1
+        },
+        "dangerIndicators": [],
+        "priorityReasons": [
+          "1 injured person(s)"
+        ],
+        "requiredResources": [
+          "Medical Assistance"
+        ],
+        "rawMessage": "Meri dadi behosh ho gayi hain, oxygen khatam ho raha hai, ambulance nahi aa rahi. Hum Mayur Vihar mein hain.",
+        "parsedBy": "fallback"
+      }
+    },
+    {
+      "id": "triage-1787342969076",
+      "category": "medical",
+      "priority": "urgent",
+      "status": "active",
+      "title": "SOS: Medical Emergency Emergency",
+      "details": "Meri dadi behosh ho gayi hain, oxygen khatam ho raha hai, ambulance nahi aa rahi. Hum Mayur Vihar mein hain.",
+      "items": [
+        "Medical Assistance"
+      ],
+      "contactName": "Emergency Requester",
+      "contactPhone": "+91 98110 00112",
+      "distanceMiles": 0.1,
+      "createdAt": 1787342969076,
+      "coords": {
+        "y": 28.6139,
+        "x": 77.209
+      },
+      "peopleCount": 1,
+      "isUserCreated": true,
+      "region": "ncr",
+      "triage": {
+        "priority": "MEDIUM",
+        "incidentType": "Medical Emergency",
+        "people": null,
+        "vulnerable": {
+          "elderly": 0,
+          "children": 0,
+          "pregnant": 0,
+          "disabled": 0,
+          "injured": 1
+        },
+        "dangerIndicators": [],
+        "priorityReasons": [
+          "1 injured person(s)"
+        ],
+        "requiredResources": [
+          "Medical Assistance"
+        ],
+        "rawMessage": "Meri dadi behosh ho gayi hain, oxygen khatam ho raha hai, ambulance nahi aa rahi. Hum Mayur Vihar mein hain.",
+        "parsedBy": "fallback"
+      }
+    },
+    {
+      "id": "triage-1787083845468",
+      "category": "rescue",
+      "priority": "critical",
+      "status": "active",
+      "title": "SOS: Trapped Emergency",
+      "details": "Hum 4 log Yamuna ke paas phas gaye hain, ek elderly person hain aur pani ghar ke first floor tak aa gaya hai.",
+      "items": [
+        "Evacuation",
+        "Rescue Boat",
+        "Emergency Shelter",
+        "Medical Assistance"
+      ],
+      "contactName": "Emergency Requester",
+      "contactPhone": "+91 98110 00112",
+      "distanceMiles": 0.1,
+      "createdAt": 1787083845468,
+      "coords": {
+        "y": 28.6139,
+        "x": 77.209
+      },
+      "peopleCount": 4,
+      "isUserCreated": true,
+      "region": "ncr",
+      "triage": {
+        "priority": "CRITICAL",
+        "incidentType": "Trapped",
+        "people": 4,
+        "vulnerable": {
+          "elderly": 1,
+          "children": 0,
+          "pregnant": 0,
+          "disabled": 0,
+          "injured": 0
+        },
+        "dangerIndicators": [
+          "Water level rising — first floor"
+        ],
+        "priorityReasons": [
+          "4 people affected",
+          "1 elderly person(s) present",
+          "Person(s) trapped — immediate evacuation required",
+          "Flood water at dangerous level"
+        ],
+        "requiredResources": [
+          "Evacuation",
+          "Rescue Boat",
+          "Emergency Shelter",
+          "Medical Assistance"
+        ],
+        "rawMessage": "Hum 4 log Yamuna ke paas phas gaye hain, ek elderly person hain aur pani ghar ke first floor tak aa gaya hai.",
+        "parsedBy": "fallback"
+      }
+    }
+  ],
+  "resolvedIds": [
+    "sync-test-auto-1787083766314"
+  ],
+  "helpingIds": [],
+  "version": 9
+}

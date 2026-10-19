@@ -1,0 +1,20 @@
+{
+  "incidents": [
+    {
+      "id": "inc-001",
+      "title": "Yamuna Water Level Warning Level Breach",
+      "category": "flood",
+      "severity": "high",
+      "status": "active",
+      "region": "ncr",
+      "location": "Old Railway Bridge (Loha Pul), Yamuna Bank",
+      "latitude": 28.655,
+      "longitude": 77.248,
+      "declaredBy": "State Disaster Management Authority (SDMA)",
+      "declaredAt": "2026-10-14T10:19:48.574Z",
+      "updatedAt": "2026-10-14T14:19:48.574Z",
+      "notes": "Low-lying floodplains under alert. Boat rescue units on high standby."
+    }
+  ],
+  "version": 1
+}

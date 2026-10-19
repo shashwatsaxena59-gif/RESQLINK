@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="maskableGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1827" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="maskableAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+  </defs>
+
+  <!-- Full bleed for maskable cropping -->
+  <rect width="512" height="512" fill="url(#maskableGrad)" />
+
+  <!-- Safe zone graphics: centered within 384x384 box -->
+  <g transform="translate(256 256) scale(0.72) translate(-256 -256)">
+    <!-- Outer Signal Waves -->
+    <circle cx="256" cy="256" r="180" fill="none" stroke="#38bdf8" stroke-width="6" stroke-dasharray="10 14" opacity="0.4" />
+    <circle cx="256" cy="256" r="144" fill="none" stroke="#38bdf8" stroke-width="7" opacity="0.6" />
+
+    <!-- Shield Core -->
+    <path d="M256 96 L360 144 C360 252 308 344 256 396 C204 344 152 252 152 144 Z"
+          fill="url(#maskableAccent)" stroke="#ffffff" stroke-width="8" stroke-linejoin="round" />
+
+    <!-- Emergency Cross / Lifeline inside shield -->
+    <rect x="236" y="166" width="40" height="128" rx="10" fill="#ffffff" />
+    <rect x="192" y="210" width="128" height="40" rx="10" fill="#ffffff" />
+
+    <!-- Beacon Center Pulse -->
+    <circle cx="256" cy="230" r="12" fill="#ef4444" />
+  </g>
+</svg>
