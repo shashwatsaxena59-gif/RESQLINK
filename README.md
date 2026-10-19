@@ -2,8 +2,9 @@
 
 ### AI-Powered Disaster Response & Rescue Assistance Platform
 
-[![Local App](https://img.shields.io/badge/💻_Local_App-localhost%3A5173-blue?style=for-the-badge)](http://localhost:5173)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-RESQLINK-blue?style=for-the-badge&logo=github)](https://github.com/shashwatsaxena59-gif/RESQLINK)
+[![Live Web App](https://img.shields.io/badge/🚀_Live_App-GitHub_Pages-success?style=for-the-badge&logo=github)](https://shashwatsaxena59-gif.github.io/RESQLINK/)
+[![Localhost](https://img.shields.io/badge/💻_Local_App-localhost%3A5173-blue?style=for-the-badge)](http://localhost:5173)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-RESQLINK-black?style=for-the-badge&logo=github)](https://github.com/shashwatsaxena59-gif/RESQLINK)
 
 ResQLink is a disaster-response web application designed to help people **find assistance, report emergencies, locate nearby shelters, and coordinate rescue efforts** during natural disasters.
 
@@ -11,12 +12,13 @@ The platform brings essential emergency-response information into one place thro
 
 ---
 
-## 💻 Local Application Link
+## 🌐 Project Links
 
-When running the project locally, open the app directly at:
+### 🚀 Live Web App (Direct from GitHub)
+🔗 **[https://shashwatsaxena59-gif.github.io/RESQLINK/](https://shashwatsaxena59-gif.github.io/RESQLINK/)**
 
+### 💻 Localhost (When running locally)
 🔗 **[http://localhost:5173](http://localhost:5173)**
-
 * **Frontend:** [http://localhost:5173](http://localhost:5173)
 * **Backend API Server:** [http://localhost:3001](http://localhost:3001)
 

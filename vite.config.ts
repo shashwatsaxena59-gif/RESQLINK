@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: './',
   plugins: [react()],
   server: {
     host: true, // Listen on all local IP addresses (0.0.0.0) so phone can access via LAN IP
