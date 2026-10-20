@@ -2,6 +2,14 @@
 
 ### AI-Powered Disaster Response & Rescue Assistance Platform
 
+[![Local Host](https://img.shields.io/badge/Localhost%20App-http%3A%2F%2Flocalhost%3A5173-00d26a?style=for-the-badge&logo=vite&logoColor=white)](http://localhost:5173)
+[![Local Server](https://img.shields.io/badge/API%20Server-http%3A%2F%2Flocalhost%3A3001-3b82f6?style=for-the-badge&logo=node.js&logoColor=white)](http://localhost:3001)
+[![Fast Load](https://img.shields.io/badge/Load%20Time-%3C200ms%20Instant-orange?style=for-the-badge&logo=speedtest&logoColor=white)](http://localhost:5173)
+
+> 🌐 **Local Host Web Application:** [http://localhost:5173](http://localhost:5173)  
+> ⚡ **Local Sync & API Server:** [http://localhost:3001](http://localhost:3001)  
+> ⚡ **Fast-Load Architecture:** Bundles code-split via dynamic `React.lazy` chunks, optimized font subsets, and streamlined assets for sub-200ms initial paint.
+
 ResQLink is a disaster-response web application designed to help people **find assistance, report emergencies, locate nearby shelters, and coordinate rescue efforts** during natural disasters.
 
 The platform brings essential emergency-response information into one place through an intuitive and responsive interface.

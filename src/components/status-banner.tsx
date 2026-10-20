@@ -7,7 +7,6 @@ import { FILTER_TABS } from '@/types';
 import type { FilterCategory } from '@/types';
 import { REGION_ZONES } from '@/mockData';
 import type { MapRegion } from '@/components/map-view';
-import { motion } from 'framer-motion';
 
 interface StatusBannerProps {
   activeFilter: FilterCategory;
@@ -170,10 +169,9 @@ function KpiCard({
   glowClass?: string;
 }) {
   return (
-    <motion.div 
-      whileHover={{ scale: 1.05, y: -2 }}
+    <div 
       className={cn(
-        'relative flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md rounded-2xl border transition-all cursor-default',
+        'relative flex flex-col gap-3 p-4 bg-black/40 backdrop-blur-md rounded-2xl border transition-all duration-200 hover:scale-[1.03] hover:-translate-y-0.5 cursor-default',
         borderClass,
         glowClass
       )}
@@ -195,6 +193,6 @@ function KpiCard({
         </div>
         <p className="text-xs text-muted-foreground mt-1 font-semibold tracking-wide uppercase">{label}</p>
       </div>
-    </motion.div>
+    </div>
   );
 }

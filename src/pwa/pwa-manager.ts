@@ -84,8 +84,8 @@ class PwaManager {
       this.notify();
     });
 
-    // Register service worker in production / browser environment
-    if ('serviceWorker' in navigator) {
+    // Register service worker in production / browser environment (bypass in dev mode for maximum load speed)
+    if ('serviceWorker' in navigator && !import.meta.env.DEV) {
       window.addEventListener('load', () => {
         this.registerServiceWorker();
       });

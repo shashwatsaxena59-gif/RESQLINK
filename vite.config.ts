@@ -24,27 +24,30 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['leaflet', 'leaflet.markercluster'],
+    include: ['react', 'react-dom', 'leaflet', 'leaflet.markercluster', 'date-fns', 'sonner'],
   },
   build: {
+    target: 'esnext',
+    cssCodeSplit: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
         // Split large vendor libs into separate cached chunks
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-leaflet': ['leaflet', 'leaflet.markercluster'],
-          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
-          'vendor-ui': ['framer-motion', 'sonner', 'date-fns'],
+          'vendor-ui': ['sonner', 'date-fns', 'clsx', 'tailwind-merge'],
           'vendor-radix': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-select',
             '@radix-ui/react-tabs',
             '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-dropdown-menu',
           ],
         },
       },
     },
-    // Increase chunk size warning threshold (three.js is large)
-    chunkSizeWarningLimit: 1200,
+    chunkSizeWarningLimit: 900,
   },
 });

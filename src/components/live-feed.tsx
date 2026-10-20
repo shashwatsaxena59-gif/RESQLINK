@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, HeartPulse, Droplets, BedDouble, Users, LifeBuoy,
   Navigation, Clock, MapPin, PersonStanding, CheckCircle2,
@@ -631,7 +630,7 @@ export function LiveFeed({
                 )}
               </div>
             ) : (
-              <AnimatePresence mode="popLayout">
+              <>
                 {sorted.map((r, i) => (
                   <RequestCard
                     key={r.id}
@@ -646,7 +645,7 @@ export function LiveFeed({
                     region={region}
                   />
                 ))}
-              </AnimatePresence>
+              </>
             )}
           </div>
         </ScrollArea>
@@ -1074,13 +1073,7 @@ function RequestCard({
   };
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95, y: 20, rotateX: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-      exit={{ opacity: 0, scale: 0.9, y: -20 }}
-      whileHover={{ scale: 1.02, rotateY: -3, rotateX: 3, z: 30, transition: { duration: 0.2 } }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.05 }}
+    <div
       onClick={onSelect}
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -1238,6 +1231,6 @@ function RequestCard({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

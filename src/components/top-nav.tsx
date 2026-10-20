@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { NetworkStatus } from '@/hooks/use-network';
-import { motion } from 'framer-motion';
 
 interface TopNavProps {
   status: NetworkStatus;
@@ -42,12 +41,7 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-50 p-3 sm:p-4 pointer-events-none w-full max-w-[1800px] mx-auto">
-      <motion.div 
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 150, damping: 20 }}
-        className="flex flex-col gap-2 pointer-events-auto"
-      >
+      <div className="flex flex-col gap-2 pointer-events-auto">
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4 rounded-3xl bg-card/50 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-3 min-h-[64px]">
           {/* Logo & Brand */}
           <div className="flex items-center gap-4 shrink-0">
@@ -179,7 +173,7 @@ export function TopNav({
             <span className="px-3 py-1 rounded-lg bg-alert border border-alert text-alert-foreground text-[10px] sm:text-xs font-black tracking-widest shadow-[0_0_10px_hsl(var(--alert)/0.5)]">HIGH SURGE</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </header>
   );
 }

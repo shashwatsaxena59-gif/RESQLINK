@@ -1,34 +1,17 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { AppNav } from '@/components/app-nav';
 import { LandingPage } from '@/components/landing-page';
-import { OperationsDashboardView } from '@/components/operations-dashboard-view';
-import { SyncStatusModal } from '@/components/sync-status-modal';
-import { ProfileSettingsModal } from '@/components/profile-settings-modal';
-import { StatusBanner } from '@/components/status-banner';
-import { MapView } from '@/components/map-view';
 import type { MapRegion } from '@/components/map-view';
-import { EmergencyMapPage } from '@/components/emergency-map-page';
-import { LiveFeed } from '@/components/live-feed';
-import { SosDrawer } from '@/components/sos-drawer';
 import { EmergencySosDrawer } from '@/components/emergency-sos-drawer';
-import { RequestDetailsModal } from '@/components/request-details-modal';
 import type { EmergencyRequest } from '@/domain/models/emergency-request';
-import { ShelterWidget } from '@/components/shelter-widget';
-import { ShelterDirectoryView } from '@/components/shelter-directory-view';
 import { useShelterStore } from '@/hooks/use-shelter-store';
 import type { AuthUser } from '@/auth/permissions';
-import { FindHelpPanel } from '@/components/find-help-panel';
-import { OfferHelpPanel } from '@/components/offer-help-panel';
-import { VolunteerRegistrationModal } from '@/components/volunteer-registration-modal';
-import { VolunteerPortalView } from '@/components/volunteer-portal-view';
-import { hasVolunteerProfile } from '@/lib/volunteer-profile';
 import { MobileNav } from '@/components/mobile-nav';
 import { useNetwork, useOfflineQueue } from '@/hooks/use-network';
 import { useVolunteerOffers } from '@/hooks/use-volunteer-offers';
 import { useTheme } from '@/hooks/use-theme';
 import { REGION_DATA } from '@/mockData';
 import type { RegionKey } from '@/mockData';
-import { Navigation } from 'lucide-react';
 import type {
   FilterCategory,
   AidRequest,
@@ -38,19 +21,10 @@ import type {
   UserRole,
 } from '@/types';
 import { cn } from '@/lib/utils';
-import { HelpBot } from '@/components/help-bot';
-import { TriagePanel } from '@/components/triage-panel';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import type { NavDestination } from '@/hooks/use-navigation';
-
 import { useCrossDeviceSync } from '@/hooks/use-cross-device-sync';
-import { motion, AnimatePresence } from 'framer-motion';
-
-// ── NGO / Rescue Management imports ──────────────────────────────────────────
-import { NgoLoginModal } from '@/components/ngo-login-modal';
-import { NgoDashboard } from '@/components/ngo-dashboard';
-import { VolunteerRescueDashboard } from '@/components/volunteer-rescue-dashboard';
 import {
   getNgoSession,
   getVolunteerSession,
@@ -58,6 +32,65 @@ import {
   clearVolunteerSession,
 } from '@/lib/ngo-auth';
 import type { NgoProfile, VolunteerMember } from '@/types';
+
+// ── Lazy-loaded secondary views for instant initial page startup ──
+const OperationsDashboardView = lazy(() =>
+  import('@/components/operations-dashboard-view').then((m) => ({ default: m.OperationsDashboardView }))
+);
+const EmergencyMapPage = lazy(() =>
+  import('@/components/emergency-map-page').then((m) => ({ default: m.EmergencyMapPage }))
+);
+const VolunteerPortalView = lazy(() =>
+  import('@/components/volunteer-portal-view').then((m) => ({ default: m.VolunteerPortalView }))
+);
+const ShelterDirectoryView = lazy(() =>
+  import('@/components/shelter-directory-view').then((m) => ({ default: m.ShelterDirectoryView }))
+);
+const NgoDashboard = lazy(() =>
+  import('@/components/ngo-dashboard').then((m) => ({ default: m.NgoDashboard }))
+);
+const VolunteerRescueDashboard = lazy(() =>
+  import('@/components/volunteer-rescue-dashboard').then((m) => ({ default: m.VolunteerRescueDashboard }))
+);
+const NgoLoginModal = lazy(() =>
+  import('@/components/ngo-login-modal').then((m) => ({ default: m.NgoLoginModal }))
+);
+const HelpBot = lazy(() =>
+  import('@/components/help-bot').then((m) => ({ default: m.HelpBot }))
+);
+const TriagePanel = lazy(() =>
+  import('@/components/triage-panel').then((m) => ({ default: m.TriagePanel }))
+);
+const ShelterWidget = lazy(() =>
+  import('@/components/shelter-widget').then((m) => ({ default: m.ShelterWidget }))
+);
+const FindHelpPanel = lazy(() =>
+  import('@/components/find-help-panel').then((m) => ({ default: m.FindHelpPanel }))
+);
+const OfferHelpPanel = lazy(() =>
+  import('@/components/offer-help-panel').then((m) => ({ default: m.OfferHelpPanel }))
+);
+const VolunteerRegistrationModal = lazy(() =>
+  import('@/components/volunteer-registration-modal').then((m) => ({ default: m.VolunteerRegistrationModal }))
+);
+const SyncStatusModal = lazy(() =>
+  import('@/components/sync-status-modal').then((m) => ({ default: m.SyncStatusModal }))
+);
+const ProfileSettingsModal = lazy(() =>
+  import('@/components/profile-settings-modal').then((m) => ({ default: m.ProfileSettingsModal }))
+);
+const RequestDetailsModal = lazy(() =>
+  import('@/components/request-details-modal').then((m) => ({ default: m.RequestDetailsModal }))
+);
+
+const ViewFallback = () => (
+  <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+    <div className="flex flex-col items-center gap-3 text-muted-foreground animate-pulse">
+      <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      <span className="text-xs font-mono tracking-wider uppercase">Loading tactical view...</span>
+    </div>
+  </div>
+);
 
 function App() {
   const { status, toggle, isOnline } = useNetwork();
@@ -479,110 +512,118 @@ function App() {
 
         {/* VIEW 2: OPERATIONS COMMAND DASHBOARD */}
         {currentRoute === 'operations' && (
-          <OperationsDashboardView
-            requests={requests}
-            shelters={shelters}
-            volunteers={volunteers}
-            resources={resources}
-            region={region}
-            locationLabel={locationLabel}
-            pendingSyncCount={queueCount}
-            isOnline={isOnline}
-            currentUser={authActor}
-            selectedId={selectedId}
-            onOpenSyncModal={() => setSyncModalOpen(true)}
-            onNavigateToMap={() => {
-              setCurrentRoute('map');
-              setMobileTab('map');
-            }}
-            onOpenSos={() => setSosOpen(true)}
-            onOpenShelters={() => setCurrentRoute('shelters')}
-            onOpenNgoPortal={() => openNgoOrLogin()}
-            onSelectRequest={handleSelect}
-            onOpenDetailsModal={(id) => {
-              setDetailsRequestId(id);
-              setRequestDetailsOpen(true);
-            }}
-            onAcknowledgeRequest={(id) => {
-              toast.success('Incident Acknowledged', { description: `Ticket ${id} prioritized in command stream.` });
-            }}
-            onAssignVolunteerTask={(reqId) => {
-              toast.success('Volunteer Dispatched', { description: `Mission active for ticket ${reqId}.` });
-            }}
-            onResolveRequest={(id) => handleResolveRequest(id)}
-            onOpenShelterOperatorModal={() => {
-              setCurrentRoute('shelters');
-            }}
-          />
+          <Suspense fallback={<ViewFallback />}>
+            <OperationsDashboardView
+              requests={requests}
+              shelters={shelters}
+              volunteers={volunteers}
+              resources={resources}
+              region={region}
+              locationLabel={locationLabel}
+              pendingSyncCount={queueCount}
+              isOnline={isOnline}
+              currentUser={authActor}
+              selectedId={selectedId}
+              onOpenSyncModal={() => setSyncModalOpen(true)}
+              onNavigateToMap={() => {
+                setCurrentRoute('map');
+                setMobileTab('map');
+              }}
+              onOpenSos={() => setSosOpen(true)}
+              onOpenShelters={() => setCurrentRoute('shelters')}
+              onOpenNgoPortal={() => openNgoOrLogin()}
+              onSelectRequest={handleSelect}
+              onOpenDetailsModal={(id) => {
+                setDetailsRequestId(id);
+                setRequestDetailsOpen(true);
+              }}
+              onAcknowledgeRequest={(id) => {
+                toast.success('Incident Acknowledged', { description: `Ticket ${id} prioritized in command stream.` });
+              }}
+              onAssignVolunteerTask={(reqId) => {
+                toast.success('Volunteer Dispatched', { description: `Mission active for ticket ${reqId}.` });
+              }}
+              onResolveRequest={(id) => handleResolveRequest(id)}
+              onOpenShelterOperatorModal={() => {
+                setCurrentRoute('shelters');
+              }}
+            />
+          </Suspense>
         )}
 
         {/* VIEW 3: DEDICATED INTERACTIVE EMERGENCY MAP & GEOLOCATION ENGINE */}
         {currentRoute === 'map' && (
-          <EmergencyMapPage
-            requests={requests}
-            shelters={shelters}
-            volunteers={volunteers}
-            resources={resources}
-            isOnline={isOnline}
-            selectedId={selectedId}
-            onSelect={handleSelect}
-            region={region}
-            onRegionChange={handleRegionChange}
-            theme={theme}
-            userRole={userRole}
-            navDestination={navDest}
-            onClearNavDestination={() => setNavDest(null)}
-            onNavigate={handleNavigate}
-            onOpenDetailsModal={(id) => {
-              setDetailsRequestId(id);
-              setRequestDetailsOpen(true);
-            }}
-            onHelpRequest={handleHelpRequest}
-            onResolveRequest={handleResolveRequest}
-            onRestoreRequests={handleRestoreRequests}
-          />
+          <Suspense fallback={<ViewFallback />}>
+            <EmergencyMapPage
+              requests={requests}
+              shelters={shelters}
+              volunteers={volunteers}
+              resources={resources}
+              isOnline={isOnline}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              region={region}
+              onRegionChange={handleRegionChange}
+              theme={theme}
+              userRole={userRole}
+              navDestination={navDest}
+              onClearNavDestination={() => setNavDest(null)}
+              onNavigate={handleNavigate}
+              onOpenDetailsModal={(id) => {
+                setDetailsRequestId(id);
+                setRequestDetailsOpen(true);
+              }}
+              onHelpRequest={handleHelpRequest}
+              onResolveRequest={handleResolveRequest}
+              onRestoreRequests={handleRestoreRequests}
+            />
+          </Suspense>
         )}
 
         {/* VIEW 4: VOLUNTEER DISPATCH PORTAL & INTELLIGENT MATCHING */}
         {currentRoute === 'volunteer' && (
-          <VolunteerPortalView
-            requests={requests}
-            region={region}
-            locationLabel={locationLabel}
-            isOnline={isOnline}
-            onHelpRequest={handleHelpRequest}
-            onResolveRequest={handleResolveRequest}
-            onOpenDetailsModal={(id) => {
-              setDetailsRequestId(id);
-              setRequestDetailsOpen(true);
-            }}
-            onNavigateToMap={() => setCurrentRoute('map')}
-            onNavigate={handleNavigate}
-            onOpenVolunteerReg={() => setVolunteerRegOpen(true)}
-          />
+          <Suspense fallback={<ViewFallback />}>
+            <VolunteerPortalView
+              requests={requests}
+              region={region}
+              locationLabel={locationLabel}
+              isOnline={isOnline}
+              onHelpRequest={handleHelpRequest}
+              onResolveRequest={handleResolveRequest}
+              onOpenDetailsModal={(id) => {
+                setDetailsRequestId(id);
+                setRequestDetailsOpen(true);
+              }}
+              onNavigateToMap={() => setCurrentRoute('map')}
+              onNavigate={handleNavigate}
+              onOpenVolunteerReg={() => setVolunteerRegOpen(true)}
+            />
+          </Suspense>
         )}
 
         {/* VIEW 5: SHELTER DIRECTORY & CAPACITY MANAGEMENT */}
         {currentRoute === 'shelters' && (
-          <ShelterDirectoryView
-            shelters={shelters}
-            currentUser={authActor}
-            onNavigateToMapWithShelter={(shelterId) => {
-              setSelectedId(shelterId);
-              setCurrentRoute('map');
-              setMobileTab('map');
-            }}
-            onUpdateCapacity={updateCapacity}
-            onRecordIntake={recordIntake}
-            onReserveBeds={reserveBeds}
-            onReleaseBeds={releaseBeds}
-            onUpdateStatus={updateShelterStatus}
-            onUpdateInventory={updateInventory}
-            onScheduleDelivery={scheduleDelivery}
-            onReceiveDelivery={receiveDelivery}
-            onReportShortage={reportShortage}
-            onResolveShortage={resolveShortage}
-          />
+          <Suspense fallback={<ViewFallback />}>
+            <ShelterDirectoryView
+              shelters={shelters}
+              currentUser={authActor}
+              onNavigateToMapWithShelter={(shelterId) => {
+                setSelectedId(shelterId);
+                setCurrentRoute('map');
+                setMobileTab('map');
+              }}
+              onUpdateCapacity={updateCapacity}
+              onRecordIntake={recordIntake}
+              onReserveBeds={reserveBeds}
+              onReleaseBeds={releaseBeds}
+              onUpdateStatus={updateShelterStatus}
+              onUpdateInventory={updateInventory}
+              onScheduleDelivery={scheduleDelivery}
+              onReceiveDelivery={receiveDelivery}
+              onReportShortage={reportShortage}
+              onResolveShortage={resolveShortage}
+            />
+          </Suspense>
         )}
       </main>
 
@@ -619,133 +660,151 @@ function App() {
         }}
       />
 
-      <RequestDetailsModal
-        requestId={detailsRequestId}
-        open={requestDetailsOpen}
-        onOpenChange={setRequestDetailsOpen}
-        isOnline={isOnline}
-        onStatusUpdated={handleRequestStatusUpdated}
-      />
+      <Suspense fallback={null}>
+        {requestDetailsOpen && (
+          <RequestDetailsModal
+            requestId={detailsRequestId}
+            open={requestDetailsOpen}
+            onOpenChange={setRequestDetailsOpen}
+            isOnline={isOnline}
+            onStatusUpdated={handleRequestStatusUpdated}
+          />
+        )}
 
-      <TriagePanel
-        open={triageOpen}
-        onOpenChange={setTriageOpen}
-        region={regionKey}
-        locationLabel={locationLabel}
-        resources={resources}
-        isOnline={isOnline}
-        onEnqueue={handleEnqueue}
-        onNavigate={handleNavigate}
-      />
+        {triageOpen && (
+          <TriagePanel
+            open={triageOpen}
+            onOpenChange={setTriageOpen}
+            region={regionKey}
+            locationLabel={locationLabel}
+            resources={resources}
+            isOnline={isOnline}
+            onEnqueue={handleEnqueue}
+            onNavigate={handleNavigate}
+          />
+        )}
 
-      <ShelterWidget
-        shelters={shelters}
-        open={shelterOpen}
-        onOpenChange={setShelterOpen}
-        locationLabel={locationLabel}
-        onNavigate={handleNavigate}
-      />
+        {shelterOpen && (
+          <ShelterWidget
+            shelters={shelters}
+            open={shelterOpen}
+            onOpenChange={setShelterOpen}
+            locationLabel={locationLabel}
+            onNavigate={handleNavigate}
+          />
+        )}
 
-      <FindHelpPanel
-        open={findHelpOpen}
-        onOpenChange={setFindHelpOpen}
-        resources={resources}
-        locationLabel={locationLabel}
-        onNavigate={handleNavigate}
-      />
+        {findHelpOpen && (
+          <FindHelpPanel
+            open={findHelpOpen}
+            onOpenChange={setFindHelpOpen}
+            resources={resources}
+            locationLabel={locationLabel}
+            onNavigate={handleNavigate}
+          />
+        )}
 
-      <VolunteerRegistrationModal
-        open={volunteerRegOpen}
-        onOpenChange={setVolunteerRegOpen}
-        onComplete={() => {
-          setUserRole('volunteer');
-          setCurrentRoute('volunteer');
-          toast.success('Volunteer Profile Registered', {
-            description: 'Welcome to ResQLink! Dispatch recommendations and resource matching are active.',
-          });
-        }}
-      />
+        {volunteerRegOpen && (
+          <VolunteerRegistrationModal
+            open={volunteerRegOpen}
+            onOpenChange={setVolunteerRegOpen}
+            onComplete={() => {
+              setUserRole('volunteer');
+              setCurrentRoute('volunteer');
+              toast.success('Volunteer Profile Registered', {
+                description: 'Welcome to ResQLink! Dispatch recommendations and resource matching are active.',
+              });
+            }}
+          />
+        )}
 
-      <OfferHelpPanel
-        open={offerHelpOpen}
-        onOpenChange={setOfferHelpOpen}
-        offers={offers}
-        loading={offersLoading}
-        error={offersError}
-        onCreate={async (input) => {
-          await createOffer(input);
-          toast.success('Help offer posted', {
-            description: 'Neighbors can now see your available resources.',
-          });
-        }}
-      />
+        {offerHelpOpen && (
+          <OfferHelpPanel
+            open={offerHelpOpen}
+            onOpenChange={setOfferHelpOpen}
+            offers={offers}
+            loading={offersLoading}
+            error={offersError}
+            onCreate={async (input) => {
+              await createOffer(input);
+              toast.success('Help offer posted', {
+                description: 'Neighbors can now see your available resources.',
+              });
+            }}
+          />
+        )}
 
-      {/* Sync Status Telemetry Modal */}
-      <SyncStatusModal
-        open={syncModalOpen}
-        onOpenChange={setSyncModalOpen}
-        status={status}
-        onToggleNetwork={toggle}
-        queue={queue}
-        onClearQueue={clearQueue}
-        onRemoveFromQueue={removeFromQueue}
-        customRequestsCount={customRequests.length}
-      />
+        {/* Sync Status Telemetry Modal */}
+        {syncModalOpen && (
+          <SyncStatusModal
+            open={syncModalOpen}
+            onOpenChange={setSyncModalOpen}
+            status={status}
+            onToggleNetwork={toggle}
+            queue={queue}
+            onClearQueue={clearQueue}
+            onRemoveFromQueue={removeFromQueue}
+            customRequestsCount={customRequests.length}
+          />
+        )}
 
-      {/* Profile & Role Settings Modal */}
-      <ProfileSettingsModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        role={userRole}
-        onRoleChange={setUserRole}
-        region={region}
-        onRegionChange={handleRegionChange}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        onRestoreRequests={handleRestoreRequests}
-        ngoSessionName={ngoSession?.name ?? volunteerSession?.ngoName}
-        onLogoutNgo={ngoSession ? handleNgoLogout : handleVolunteerLogout}
-      />
+        {/* Profile & Role Settings Modal */}
+        {profileModalOpen && (
+          <ProfileSettingsModal
+            open={profileModalOpen}
+            onOpenChange={setProfileModalOpen}
+            role={userRole}
+            onRoleChange={setUserRole}
+            region={region}
+            onRegionChange={handleRegionChange}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onRestoreRequests={handleRestoreRequests}
+            ngoSessionName={ngoSession?.name ?? volunteerSession?.ngoName}
+            onLogoutNgo={ngoSession ? handleNgoLogout : handleVolunteerLogout}
+          />
+        )}
 
-      {/* Context-aware Help Bot */}
-      <HelpBot
-        region={region}
-        locationLabel={locationLabel}
-        shelters={shelters}
-        resources={resources}
-        requests={requests}
-        isOnline={isOnline}
-      />
-
-      <div className="h-16 lg:hidden" />
-
-      {/* ── NGO Portal Modals ── */}
-      <NgoLoginModal
-        open={ngoLoginOpen}
-        onOpenChange={setNgoLoginOpen}
-        onNgoLoggedIn={handleNgoLoggedIn}
-        onVolunteerLoggedIn={handleVolunteerLoggedIn}
-      />
-
-      {ngoSession && (
-        <NgoDashboard
-          open={ngoDashOpen}
-          onOpenChange={setNgoDashOpen}
-          ngo={ngoSession}
-          onLogout={handleNgoLogout}
+        {/* Context-aware Help Bot */}
+        <HelpBot
+          region={region}
+          locationLabel={locationLabel}
+          shelters={shelters}
+          resources={resources}
+          requests={requests}
+          isOnline={isOnline}
         />
-      )}
 
-      {volunteerSession && (
-        <VolunteerRescueDashboard
-          open={volunteerDashOpen}
-          onOpenChange={setVolunteerDashOpen}
-          volunteer={volunteerSession.volunteer}
-          ngoId={volunteerSession.ngoId}
-          ngoName={volunteerSession.ngoName}
-          onLogout={handleVolunteerLogout}
-        />
-      )}
+        {/* ── NGO Portal Modals ── */}
+        {ngoLoginOpen && (
+          <NgoLoginModal
+            open={ngoLoginOpen}
+            onOpenChange={setNgoLoginOpen}
+            onNgoLoggedIn={handleNgoLoggedIn}
+            onVolunteerLoggedIn={handleVolunteerLoggedIn}
+          />
+        )}
+
+        {ngoSession && (
+          <NgoDashboard
+            open={ngoDashOpen}
+            onOpenChange={setNgoDashOpen}
+            ngo={ngoSession}
+            onLogout={handleNgoLogout}
+          />
+        )}
+
+        {volunteerSession && (
+          <VolunteerRescueDashboard
+            open={volunteerDashOpen}
+            onOpenChange={setVolunteerDashOpen}
+            volunteer={volunteerSession.volunteer}
+            ngoId={volunteerSession.ngoId}
+            ngoName={volunteerSession.ngoName}
+            onLogout={handleVolunteerLogout}
+          />
+        )}
+      </Suspense>
 
       <Toaster />
     </div>
