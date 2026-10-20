@@ -31,7 +31,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { cn, buildGoogleMapsUrl } from '@/lib/utils';
+import { Navigation } from 'lucide-react';
 import type {
   EmergencyRequest,
   RequestLifecycleStatus,
@@ -387,6 +388,28 @@ export function RequestDetailsModal({
                     No GPS coordinates attached (manual location only).
                   </div>
                 )}
+
+                {(() => {
+                  const destCoords: [number, number] | null =
+                    request.latitude !== null && request.longitude !== null
+                      ? [request.latitude, request.longitude]
+                      : null;
+                  const gmapsUrl = buildGoogleMapsUrl({
+                    coords: destCoords,
+                    query: request.locationDescription,
+                  });
+                  if (!gmapsUrl) return null;
+                  return (
+                    <a
+                      href={gmapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-full mt-2 py-2 px-3 rounded-lg bg-info text-white text-xs font-bold shadow-sm hover:bg-info/90 active:scale-95 transition-all text-center"
+                    >
+                      <Navigation className="h-3.5 w-3.5" /> 📍 Open Turn-by-Turn Directions in Google Maps
+                    </a>
+                  );
+                })()}
               </div>
 
               {/* Confidential Medical Details */}

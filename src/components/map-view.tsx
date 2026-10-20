@@ -793,9 +793,23 @@ export function MapView({
       if (!coords) return null;
       if (coords.x === 0 && coords.y === 0) return null; // Never plot (0, 0)
 
-      // Indian subcontinent GPS coordinates (Lat 8-38, Lng 68-98)
-      if (coords.y >= 20 && coords.y <= 40 && coords.x >= 65 && coords.x <= 95) {
+      // Direct lat/lng in coords object
+      if (coords.lat !== undefined && coords.lng !== undefined) {
+        const cLat = Number(coords.lat);
+        const cLng = Number(coords.lng);
+        if (!isNaN(cLat) && !isNaN(cLng) && (cLat !== 0 || cLng !== 0)) {
+          return [cLat, cLng];
+        }
+      }
+
+      // Indian subcontinent GPS coordinates:
+      // Case A: coords.y is Latitude, coords.x is Longitude
+      if (coords.y >= 8 && coords.y <= 38 && coords.x >= 65 && coords.x <= 98) {
         return [coords.y, coords.x];
+      }
+      // Case B: coords.x is Latitude, coords.y is Longitude
+      if (coords.x >= 8 && coords.x <= 38 && coords.y >= 65 && coords.y <= 98) {
+        return [coords.x, coords.y];
       }
 
       // Percentage / relative coordinates mapped to active region center
@@ -852,9 +866,14 @@ export function MapView({
             <p style="font-size:13px;font-weight:700;color:#f1f5f9;margin:0 0 4px">${r.title}</p>
             <p style="font-size:11px;color:#8fb4d4;margin:0 0 8px;line-height:1.6">${r.details}</p>
             ${r.items && r.items.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${r.items.map((i) => `<span style="background:#162840;border:1px solid #2a4a68;border-radius:5px;padding:2px 7px;font-size:10px;color:#93c5fd">${i}</span>`).join('')}</div>` : ''}
-            <div style="padding-top:8px;border-top:1px solid #1e3a52;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px">
-              ${r.contactPhone ? `<span>📞 <a href="tel:${r.contactPhone.replace(/[\s\-().]/g, '')}" style="color:#38bdf8;font-weight:700;text-decoration:none" onclick="event.stopPropagation()">${r.contactPhone}</a></span>` : '<span style="color:#64748b;font-size:10px;font-style:italic">No phone attached</span>'}
-              <span style="color:#94a3b8;font-size:10px">${r.contactName || 'Requester'}</span>
+            <div style="padding-top:8px;border-top:1px solid #1e3a52;display:flex;flex-direction:column;gap:6px;font-size:11px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                ${r.contactPhone ? `<span>📞 <a href="tel:${r.contactPhone.replace(/[\s\-().]/g, '')}" style="color:#38bdf8;font-weight:700;text-decoration:none" onclick="event.stopPropagation()">${r.contactPhone}</a></span>` : '<span style="color:#64748b;font-size:10px;font-style:italic">No phone attached</span>'}
+                <span style="color:#94a3b8;font-size:10px">${r.contactName || 'Requester'}</span>
+              </div>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${point[0]},${point[1]}&travelmode=driving" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:5px;background:#1d4ed8;color:white;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;text-decoration:none;border:1px solid #2563eb">
+                📍 Get Directions
+              </a>
             </div>
           </div>`,
           { className: 'map-popup', maxWidth: 260 }
@@ -905,6 +924,10 @@ export function MapView({
               </div>
             </div>
             ${s.amenities && s.amenities.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${s.amenities.map((a) => `<span style="background:#162840;border:1px solid #2a4a68;border-radius:4px;padding:1px 6px;font-size:9px;color:#93c5fd">${a}</span>`).join('')}</div>` : ''}
+            ${s.contactPhone ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a52;font-size:11px;color:#38bdf8">📞 <a href="tel:${s.contactPhone.replace(/[\s\-().]/g,'')}" style="color:#38bdf8;text-decoration:none" onclick="event.stopPropagation()">${s.contactPhone}</a></div>` : ''}
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${point[0]},${point[1]}&travelmode=driving" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:5px;background:#2563eb;color:white;border-radius:8px;padding:7px 10px;margin-top:10px;font-size:11px;font-weight:700;text-decoration:none;border:1px solid #3b82f6">
+              📍 Get Directions
+            </a>
           </div>`,
           { className: 'map-popup', maxWidth: 260 }
         );
@@ -976,7 +999,10 @@ export function MapView({
               </div>
               <p style="font-size:11px;color:#8fb4d4;margin:0 0 6px">${res.address}</p>
               ${res.phone ? `<p style="font-size:10px;color:#38bdf8;margin:0 0 6px">📞 ${res.phone}</p>` : ''}
-              <div style="display:flex;flex-wrap:wrap;gap:4px">${res.tags.map((t) => `<span style="background:#162840;border:1px solid #2a4a68;border-radius:4px;padding:1px 6px;font-size:9px;color:#93c5fd">${t}</span>`).join('')}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${res.tags.map((t) => `<span style="background:#162840;border:1px solid #2a4a68;border-radius:4px;padding:1px 6px;font-size:9px;color:#93c5fd">${t}</span>`).join('')}</div>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${point[0]},${point[1]}&travelmode=driving" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:5px;background:#0284c7;color:white;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;border:1px solid #38bdf8">
+                📍 Get Directions
+              </a>
             </div>`,
             { className: 'map-popup', maxWidth: 240 }
           );
@@ -1012,7 +1038,10 @@ export function MapView({
               </div>
               <p style="font-size:11px;color:#8fb4d4;margin:0 0 6px">${ro.location}</p>
               ${ro.providerPhone ? `<p style="font-size:10px;color:#38bdf8;margin:0 0 6px">📞 ${ro.providerPhone}</p>` : ''}
-              <div style="font-size:9px;color:#94a3b8">Provider: ${ro.providerName || 'Community Member'}</div>
+              <div style="font-size:9px;color:#94a3b8;margin-bottom:8px">Provider: ${ro.providerName || 'Community Member'}</div>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${point[0]},${point[1]}&travelmode=driving" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:5px;background:#d97706;color:white;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;border:1px solid #f59e0b">
+                📍 Get Directions
+              </a>
             </div>`,
             { className: 'map-popup', maxWidth: 240 }
           );

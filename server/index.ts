@@ -683,24 +683,27 @@ function generateId(prefix: string): string {
 const API_KEY    = process.env.GEMINI_API_KEY;
 const GEMINI_READY = !!(API_KEY && API_KEY.trim() && !API_KEY.startsWith('your_'));
 
-const SYSTEM_INSTRUCTION = `You are the Disaster Assistant for a disaster-management application called ResQLink.
+let genAI: GoogleGenAI | null = null;
+if (GEMINI_READY && API_KEY) {
+  genAI = new GoogleGenAI({ apiKey: API_KEY });
+}
 
-Your responsibilities are:
-1. Explain how the application works.
-2. Provide simple, basic, safety-focused disaster guidance.
-3. Help users find resources using ONLY the application data provided to you in the context.
-4. Adapt your responses to the currently selected region.
-5. NEVER invent locations, shelter names, shelter capacity, available beds, hospitals, food points, water points, rescue locations, distances, or any other resource details.
-6. Keep answers short, clear, and practical — maximum 4-5 sentences or 5 bullet points.
-7. Use numbered steps or bullet points for emergency guidance.
-8. Use simple language suitable for someone under stress.
-9. If the user appears to be facing immediate danger, first say: call emergency services immediately, then move to the nearest safe location.
-10. Do not provide dangerous, experimental, or risky instructions.
-11. Do not pretend to be a doctor, firefighter, rescue worker, or emergency responder.
-12. If you do not know something, say so clearly instead of guessing.
-13. Reply in English when asked in English; reply in Hindi/Hinglish when asked in Hindi/Hinglish.
-14. For resources (shelters, hospitals, food, water, rescue), only reference what appears in the structured app data given to you.
-15. If the requested information is not in the app data, say: "I don't currently have that information in the app."`;
+const SYSTEM_INSTRUCTION = `You are ResQ AI — a powerful, general-purpose AI assistant embedded in a disaster-management application called ResQLink.
+
+You can answer ANY question the user asks — whether it's about disasters, general knowledge, science, history, math, cooking, health, coding, relationships, or anything else.
+
+When disaster or emergency context is provided (shelters, resources, requests, region), use it to give relevant, localised answers.
+
+Guidelines:
+- Be helpful, friendly, and thorough. Answer EVERY question — never refuse unless the question is clearly harmful.
+- For general knowledge questions, give full, detailed, accurate answers.
+- For disaster/emergency questions, also reference the provided app context (shelters, resources, active requests).
+- For immediate danger situations, always say: call 112 immediately, then provide further help.
+- Support English, Hindi, and Hinglish — respond in whichever language the user writes in.
+- Use markdown formatting (bullet points, bold, numbered lists) for clarity.
+- If asked who you are: you are ResQ AI, powered by Gemini, built into ResQLink.
+- Never say "I don't have that information" for general knowledge — you have broad training data. Only say this for real-time live data you can't access (current weather, live stock prices, etc.).
+- Keep disaster-related answers practical and actionable.`;
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {
@@ -716,6 +719,175 @@ app.get('/health', (_req: Request, res: Response) => {
     incidentsCount: incidentsStore.incidents.length,
   });
 });
+
+// ═════════════════════════════════════════════════════════════════════════════
+// GEMINI AI ENDPOINTS — Chat & Triage
+// ═════════════════════════════════════════════════════════════════════════════
+
+/** POST /api/chat — general-purpose AI chat with optional disaster context */
+app.post('/api/chat', async (req: Request, res: Response) => {
+  if (!GEMINI_READY || !genAI) {
+    res.status(503).json({ error: 'Gemini AI not configured. Add GEMINI_API_KEY to server/.env' });
+    return;
+  }
+
+  const { message, context } = req.body as {
+    message?: string;
+    context?: {
+      region?: string;
+      locationLabel?: string;
+      shelters?: any[];
+      resources?: any[];
+      activeRequests?: any[];
+      gps?: string;
+    };
+  };
+
+  if (!message?.trim()) {
+    res.status(400).json({ error: 'message is required.' });
+    return;
+  }
+
+  try {
+    // Build a rich context block if app context is provided
+    let contextBlock = '';
+    if (context) {
+      const parts: string[] = [];
+      if (context.locationLabel) parts.push(`Current region: ${context.locationLabel}`);
+      if (context.gps) parts.push(`User GPS: ${context.gps}`);
+      if (context.shelters?.length) {
+        parts.push(`\nActive shelters (${context.shelters.length}):\n` +
+          context.shelters.map(s =>
+            `- ${s.name} | ${s.address} | ${s.status} | Capacity: ${s.occupied}/${s.capacity} | Amenities: ${(s.amenities || []).join(', ')}`
+          ).join('\n')
+        );
+      }
+      if (context.resources?.length) {
+        parts.push(`\nAvailable resources (${context.resources.length}):\n` +
+          context.resources.map(r =>
+            `- [${r.type}] ${r.name} | ${r.address} | ${r.status}${r.phone ? ` | Phone: ${r.phone}` : ''}`
+          ).join('\n')
+        );
+      }
+      if (context.activeRequests?.length) {
+        parts.push(`\nActive emergency requests (${context.activeRequests.length}):\n` +
+          context.activeRequests.slice(0, 10).map(r =>
+            `- [${r.priority}] ${r.category}: ${r.title || r.category} (${r.peopleCount || '?'} people)`
+          ).join('\n')
+        );
+      }
+      if (parts.length > 0) {
+        contextBlock = `\n\n--- APP CONTEXT ---\n${parts.join('\n')}\n--- END CONTEXT ---\n`;
+      }
+    }
+
+    const fullMessage = contextBlock
+      ? `${message.trim()}${contextBlock}`
+      : message.trim();
+
+    const response = await genAI.models.generateContent({
+      model: 'gemini-2.0-flash',
+      config: { systemInstruction: SYSTEM_INSTRUCTION },
+      contents: [{ role: 'user', parts: [{ text: fullMessage }] }],
+    });
+
+    const reply = response.text?.trim();
+    if (!reply) {
+      res.status(500).json({ error: 'Empty response from Gemini.' });
+      return;
+    }
+
+    res.json({ ok: true, reply });
+  } catch (err) {
+    console.error('[/api/chat] Gemini error:', err);
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Gemini request failed.' });
+  }
+});
+
+/** POST /api/triage — AI-powered emergency triage analysis */
+app.post('/api/triage', async (req: Request, res: Response) => {
+  if (!GEMINI_READY || !genAI) {
+    res.status(503).json({ error: 'Gemini AI not configured.' });
+    return;
+  }
+
+  const { message, region, locationLabel } = req.body as {
+    message?: string;
+    region?: string;
+    locationLabel?: string;
+  };
+
+  if (!message?.trim()) {
+    res.status(400).json({ error: 'message is required.' });
+    return;
+  }
+
+  const triagePrompt = `You are an emergency triage AI for disaster response in ${locationLabel || region || 'India'}.
+
+Analyze the following emergency message and extract structured information. Return ONLY valid JSON (no markdown, no code block, no extra text):
+
+{
+  "incidentType": "Flood|Fire|Earthquake|Landslide|Medical Emergency|Trapped|Building Collapse|Unknown",
+  "priority": "CRITICAL|HIGH|MEDIUM|LOW",
+  "people": <number or null>,
+  "location": "<specific location string or null>",
+  "locationConfidence": "high|medium|low",
+  "vulnerable": {
+    "elderly": <number>,
+    "children": <number>,
+    "pregnant": <number>,
+    "disabled": <number>,
+    "injured": <number>
+  },
+  "dangerIndicators": ["<indicator1>", ...],
+  "priorityReasons": ["<reason1>", ...],
+  "requiredResources": ["Ambulance", "Fire Brigade", "Rescue Team", "Boats", "Medical Aid", "Food & Water", "Shelter"],
+  "medicalEmergency": <boolean>,
+  "actionableAdvice": "<1-2 sentence immediate action advice in same language as input>"
+}
+
+Emergency message: "${message.trim()}"
+
+Region context: ${locationLabel || region || 'India'}`;
+
+  try {
+    const response = await genAI.models.generateContent({
+      model: 'gemini-2.0-flash',
+      config: {
+        systemInstruction: 'You are an emergency triage system. Always respond with valid JSON only.',
+        responseMimeType: 'application/json',
+      },
+      contents: [{ role: 'user', parts: [{ text: triagePrompt }] }],
+    });
+
+    const raw = response.text?.trim();
+    if (!raw) {
+      res.status(500).json({ error: 'Empty triage response.' });
+      return;
+    }
+
+    // Parse and validate JSON
+    let parsed: any;
+    try {
+      // Strip any accidental markdown code fences
+      const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      res.status(500).json({ error: 'Invalid JSON from triage model.' });
+      return;
+    }
+
+    res.json({
+      ...parsed,
+      rawMessage: message.trim(),
+      parsedBy: 'gemini',
+    });
+  } catch (err) {
+    console.error('[/api/triage] Gemini error:', err);
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Triage request failed.' });
+  }
+});
+
 
 // ═════════════════════════════════════════════════════════════════════════════
 // REAL-TIME EVENT STREAM (SSE)

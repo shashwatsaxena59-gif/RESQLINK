@@ -183,13 +183,22 @@ export function EmergencyMapPage({
   }, [activeNavDest, userCoords]);
 
   // ── Coordinates Helper for Unified Entities ──────────────────────────────
-  const getEntityLatLng = useCallback((item: { coords?: { x: number; y: number } }): [number, number] | null => {
+  const getEntityLatLng = useCallback((item: { coords?: { x: number; y: number }; latitude?: number | null; longitude?: number | null }): [number, number] | null => {
+    if (!item) return null;
+    if (typeof item.latitude === 'number' && typeof item.longitude === 'number' && !isNaN(item.latitude) && !isNaN(item.longitude)) {
+      if (item.latitude !== 0 || item.longitude !== 0) {
+        return [item.latitude, item.longitude];
+      }
+    }
     if (!item.coords) return null;
     const { x, y } = item.coords;
     if (x === 0 && y === 0) return null;
-    // Real world coordinates
-    if (y >= 20 && y <= 40 && x >= 65 && x <= 95) {
+    // Real world coordinates (Lat 8-38, Lng 65-98)
+    if (y >= 8 && y <= 38 && x >= 65 && x <= 98) {
       return [y, x];
+    }
+    if (x >= 8 && x <= 38 && y >= 65 && y <= 98) {
+      return [x, y];
     }
     // Projected offset from region center
     const center = region === 'ncr' ? [28.55, 77.25] : [30.556, 79.564];

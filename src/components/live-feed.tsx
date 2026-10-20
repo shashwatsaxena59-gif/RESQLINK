@@ -72,15 +72,27 @@ const ICON_MAP: Record<RequestCategory, typeof HeartPulse> = {
 
 export function computeRequestCoords(request: AidRequest, region: string = 'ncr'): [number, number] {
   const center: [number, number] = region === 'badrinath' ? [30.5560, 79.5640] : [28.6139, 77.2090];
-  if (request.coords && request.coords.y > 15 && request.coords.x > 60) {
-    return [request.coords.y, request.coords.x];
+  if (typeof request.latitude === 'number' && typeof request.longitude === 'number' && !isNaN(request.latitude) && !isNaN(request.longitude)) {
+    if (request.latitude !== 0 || request.longitude !== 0) {
+      return [request.latitude, request.longitude];
+    }
   }
-  const x = request.coords?.x ?? 50;
-  const y = request.coords?.y ?? 50;
-  return [
-    center[0] + (y - 50) * 0.0012,
-    center[1] + (x - 50) * 0.0012,
-  ];
+  if (request.coords) {
+    const { x, y } = request.coords;
+    if (y >= 8 && y <= 38 && x >= 65 && x <= 98) {
+      return [y, x];
+    }
+    if (x >= 8 && x <= 38 && y >= 65 && y <= 98) {
+      return [x, y];
+    }
+    const nx = typeof x === 'number' && !isNaN(x) ? x : 50;
+    const ny = typeof y === 'number' && !isNaN(y) ? y : 50;
+    return [
+      center[0] + (ny - 50) * 0.0018,
+      center[1] + (nx - 50) * 0.0018,
+    ];
+  }
+  return center;
 }
 
 interface LiveFeedProps {
@@ -1070,7 +1082,7 @@ function RequestCard({
       whileHover={{ scale: 1.02, rotateY: -3, rotateX: 3, z: 30, transition: { duration: 0.2 } }}
       transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.05 }}
       onClick={onSelect}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onSelect();

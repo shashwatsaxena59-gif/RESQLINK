@@ -362,6 +362,7 @@ function App() {
 
     addCustomRequest(newAidRequest);
     setSelectedId(newAidRequest.id);
+    setFilter('all');
 
     if (!isOnline) {
       toast.warning('📱 Saved on this device — awaiting transmission', {
@@ -464,11 +465,15 @@ function App() {
             isOnline={isOnline}
             onRequestHelp={() => setSosOpen(true)}
             onBecomeVolunteer={() => setVolunteerRegOpen(true)}
+            onOpenVolunteerPortal={() => setCurrentRoute('volunteer')}
             onExploreMap={() => setCurrentRoute('map')}
             onOpenShelters={() => setCurrentRoute('shelters')}
             onOpenResources={() => setFindHelpOpen(true)}
             onOpenOperations={() => setCurrentRoute('operations')}
             onOpenSync={() => setSyncModalOpen(true)}
+            onNavigate={handleNavigate}
+            onSelectRequest={handleSelect}
+            onHelpRequest={handleHelpRequest}
           />
         )}
 

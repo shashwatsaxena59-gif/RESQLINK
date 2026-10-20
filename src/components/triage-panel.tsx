@@ -265,6 +265,7 @@ export function TriagePanel({
                     <VoiceMicButton
                       listening={voice.listening}
                       supported={voice.supported}
+                      voiceError={voice.voiceError}
                       onStart={() => voice.start(t => setMessage(t))}
                       onStop={() => voice.stop()}
                       size="sm"

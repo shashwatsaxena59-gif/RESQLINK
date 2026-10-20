@@ -6,35 +6,40 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Build a Google Maps URL for a destination.
+ * Build a Google Maps URL for DIRECTIONS to a destination.
+ * Opens turn-by-turn navigation from user's current location.
  * Prefers lat/lng coordinates; falls back to a text search query.
  * Returns null if no usable location data is provided.
  */
 export function buildGoogleMapsUrl(
   opts: { coords?: [number, number] | null; query?: string | null },
 ): string | null {
-  // Prefer exact coordinates
+  // Prefer exact coordinates — opens real navigation
   if (
     opts.coords &&
     Array.isArray(opts.coords) &&
     (opts.coords[0] !== 0 || opts.coords[1] !== 0)
   ) {
-    return `https://www.google.com/maps/search/?api=1&query=${opts.coords[0]},${opts.coords[1]}`;
+    const [lat, lng] = opts.coords;
+    // Use directions mode so it opens turn-by-turn navigation
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
   }
   // Fall back to text search
   if (opts.query && opts.query.trim()) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(opts.query.trim())}`;
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(opts.query.trim())}&travelmode=driving`;
   }
   return null;
 }
 
 /**
- * Open a destination in Google Maps in a new tab.
+ * Open Google Maps directions in a new tab from current location.
  * Uses coordinates when available; falls back to text address.
  */
-export function openGoogleMapsDirections(destination: string): void {
-  if (!destination?.trim()) return;
-  const url = buildGoogleMapsUrl({ query: destination });
+export function openGoogleMapsDirections(
+  destination: string,
+  coords?: [number, number] | null,
+): void {
+  if (!destination?.trim() && !coords) return;
+  const url = buildGoogleMapsUrl({ coords, query: destination });
   if (url) window.open(url, '_blank', 'noopener,noreferrer');
 }
-

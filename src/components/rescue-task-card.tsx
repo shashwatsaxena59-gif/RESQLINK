@@ -5,10 +5,10 @@
  * priority badge, and configurable action buttons.
  */
 
-import { Clock, MapPin, Users, Phone, AlertTriangle, Building2 } from 'lucide-react';
+import { Clock, MapPin, Users, Phone, AlertTriangle, Building2, Navigation } from 'lucide-react';
 import { Badge }  from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn }     from '@/lib/utils';
+import { cn, buildGoogleMapsUrl } from '@/lib/utils';
 import { RESCUE_TASK_STATUS_META, PRIORITY_META } from '@/types';
 import type { RescueTask, RescueTaskStatus } from '@/types';
 
@@ -123,10 +123,17 @@ export function RescueTaskCard({
       {/* Meta row */}
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
         {task.location && (
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <a
+            href={buildGoogleMapsUrl({ query: task.location }) || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 hover:text-primary transition-colors hover:underline"
+            title="Open turn-by-turn directions in Google Maps"
+          >
+            <Navigation className="h-3.5 w-3.5 shrink-0 text-info" />
             <span className="line-clamp-1">{task.location}</span>
-          </span>
+          </a>
         )}
         {task.peopleCount > 0 && (
           <span className="flex items-center gap-1">

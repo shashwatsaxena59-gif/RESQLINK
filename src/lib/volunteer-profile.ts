@@ -22,6 +22,7 @@ export interface VolunteerProfile {
   gender?: string;
   phone?: string;
   email?: string;
+  ngoAffiliation?: string;
   skills: string[];
   offeredSupplies: OfferedSupplyItem[];
   preferredCategories: string[];
